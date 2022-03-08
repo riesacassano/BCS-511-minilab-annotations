@@ -1,0 +1,19 @@
+exp_subject_id,Frequenc,Instr,hour,num_instru,name_instru,age_range,best_instru,music_theory,listen_time,genre1,genre2,genre3,earworm,imagery1,imagery2,imagery3,ab_pitch,relative_pitch,familiarity,played_notplayed
+377777,,,,NA,,,,,60-90 min,progressive rock,jazz,chillout,4,6,7,5,,,3,no
+377770,,,,NA,,,,,3-4 hours,Epic (trailer/movie) music and score,Rock,"80's (mixed rock,-pop, synth pop, dance, AC - almost everything from these times",4,5,6,3,,,2,no
+377747,,,,NA,,,,,15-30 min,pop,classic,rock,4,5,6,5,,,3,no
+377708,,,,NA,,,,,3-4 hours,emo rap,lofi hiphop,terrorcore,2,7,7,6,,,2,no
+377703,Occasionally,less than a year,3-4 hours,1,Guitar.,Age 19-20,Guitar,0 years,2 hours,hip-hop,R&B,French House,4,6,6,3,No,I don't know,1,no
+377701,,,,NA,,,,,2 hours,Pop,City Pop,K-Pop,4,6,6,2,,,3,no
+377696,Occasionally,3 years,3-4 hours,2,"Voice, violin",16-Jul,Voice,3-5 years,3-4 hours,R&B,House,Hip Hop,3,4,5,5,I don't know,Yes,1,no
+377694,Occasionally,4-5 years,1 hour,4,"voice, piano, guitar, drums","voice 7-18, piano 7-11, guitar and drums 17-19","voice, piano",3-5 years,0-15 min,classical,pop,jazz,4,7,5,7,No,Yes,4,no
+377692,,,,NA,,,,,2 hours,R&B,soul,afro beats,4,5,6,4,,,2,no
+377685,4-5 Days/Week,1 year,1 hour,3,"voice,piano,guitar","age 5-19,age 14-19,age 18-19",voice,0 years,3-4 hours,Hip-Hop,Electronic,Jazz,4,4,1,5,No,I don't know,1,no
+377678,Monthly,2 years,2 hours,2,"Guitar, drums",18-21,guitar,0 years,60-90 min,Metal,Rock,Funk,3,5,6,4,No,Yes,2,no
+377672,Occasionally,4-5 years,2 hours,1,violin,14-Aug,violin,3-5 years,15-30 min,indie,pop,pop rock,5,4,6,5,I don't know,I don't know,2,no
+377665,,,,NA,,,,,2 hours,Rock,Jazz,soul,4,5,6,2,,,1,no
+377664,,,,NA,,,,,30-60 min,Indie,city pop,rock,4,4,6,3,,,1,no
+377663,,,,NA,,,,,2 hours,rap,phonk,europop,5,5,3,2,,,1,no
+377650,Occasionally,4-5 years,3-4 hours,2,"Voice, keyboard",20-23,Keyboard,0 years,3-4 hours,Folk,Experimental,Drone,5,7,7,7,No,Yes,1,no
+377648,Occasionally,4-5 years,1.5 hours,1,Acoustic guitar,15-Oct,acoustic guitar,2 years,2 hours,Pop,R&B,Soul,4,6,6,1,Yes,I don't know,2,no
+377647,4-5 Days/Week,10 or more years,3-4 hours,5,"Voice, piano, guitar, flute, viola",20-Dec,Voice,3-5 years,30-60 min,Indie,Rock,Pop,5,7,7,7,No,Yes,2,no
