@@ -52,18 +52,20 @@ process_responses <- function(data){
   all_vals <- sub('\"', '', all_vals) # remove \" from the end
   all_vals <- substring(all_vals, 2) # remove first ;
   return(all_vals)
-  
+}
+
+process_responses_to_dbls <- function(data){
   # separate values for use as a list of doubles
-#  processed_data <- c()
-#  for (i in 1:length(all_vals)){
-#    vals = flatten(strsplit(toString(all_vals[i][1]), ";"))
-#    vals = vals[-1] # remove first value (empty)
-#    vals = sub('\"', '', vals) # remove \" from last value
-#    vals = as.numeric(as.list(vals)) # save as a list of numerics
-#    vals = as_tibble(vals / 1000) # convert ms to s and make a tibble
-#    processed_data <- c(processed_data,vals)
-#  }
-#  return(processed_data)
+  processed_data <- c()
+  for (i in 1:length(data)){
+    vals = flatten(strsplit(toString(data[i][1]), ";"))
+    #vals = vals[-1] # remove first value (empty)
+    #vals = sub('\"', '', vals) # remove \" from last value
+    vals = as.numeric(as.list(vals)) # save as a list of numerics
+    vals = as_tibble(vals / 1000) # convert ms to s and make a tibble
+    processed_data <- c(processed_data,vals)
+  }
+  return(processed_data)
 }
 
 ```
@@ -101,7 +103,28 @@ d.other_temp <- select(d.other_temp, -strategy)
 
 d.practice_filtered <- d.other_temp
 d.practice_filtered$strategy <- d.strat_temp$strategy
-write_csv(d.practice_filtered, 'data/practice_task.csv')
+#write_csv(d.practice_filtered, 'data/practice_task.csv')
 print(d.practice_filtered)
+```
+
+Responses for the actual task are processed similarly. Responses and strategy answers are extracted together from the raw file and then separated. Strategy answers are saved in `strategy.csv`
+
+```{r get all rows for actual task, echo=FALSE}
+d.responses_all <- d %>%
+  # keep only rows for main task (this includes response task and strategy)
+  filter(grepl('block_', Block_Name)) %>%
+  # keep relevant columns
+  select(c('exp_subject_id','Task_Name',
+           'space_press1','space_press2','strategy')) #%>%
+  #print()
+
+d.strategy <- d.responses_all %>%
+  # strategy questions are labeled with 25%, 50%, 75%, or 100%
+  # matching the subject's progress through the experiment
+  filter(grepl('%', Task_Name)) %>%
+  # drop the (now empty) response columns
+  select(c(-space_press1, -space_press2)) %>%
+  write_csv('data/strategy.csv')
+  #print()
 
 ```
