@@ -34,8 +34,8 @@ d.survey <- d %>%
   select(all_of(survey_qs)) %>%
   # put subject ID at front
   relocate(exp_subject_id) %>%
-  print()
   #write_csv('data/survey.csv')
+  print()
 ```
 
 ```{r processing function for presses, echo=FALSE}
@@ -109,8 +109,8 @@ print(d.practice_filtered)
 
 Responses for the actual task are processed similarly. Responses and strategy answers are extracted together from the raw file and then separated. Strategy answers are saved in `strategy.csv`
 
-```{r get all rows for actual task, echo=FALSE}
-d.responses_all <- d %>%
+```{r get all rows for actual task and process strategy, echo=FALSE}
+d.responses_all_strat <- d %>%
   # keep only rows for main task (this includes response task and strategy)
   filter(grepl('block_', Block_Name)) %>%
   # keep relevant columns
@@ -118,13 +118,46 @@ d.responses_all <- d %>%
            'space_press1','space_press2','strategy')) #%>%
   #print()
 
-d.strategy <- d.responses_all %>%
+d.strategy <- d.responses_all_strat %>%
   # strategy questions are labeled with 25%, 50%, 75%, or 100%
   # matching the subject's progress through the experiment
   filter(grepl('%', Task_Name)) %>%
   # drop the (now empty) response columns
   select(c(-space_press1, -space_press2)) %>%
-  write_csv('data/strategy.csv')
-  #print()
+  #write_csv('data/strategy.csv')
+  print()
+```
 
+Check that each subject actually completed the experiment. For any given stimulus a subject may not have responded at any point during that stimulus. If that is the case, the stimulus itself will still show up as a row, but the values in the response column will be "". These cases are kept. If a subject doesn't have rows for one or more stimulus, then they stopped early and their data is not included.
+
+```{r check for completeness, echo=FALSE}
+d.responses_all <- d.responses_all_strat %>%
+  # remove the strategy rows and column
+  mutate(strategy = NULL) %>%
+  filter(!grepl('%', Task_Name)) %>%
+  print()
+
+subj_ids <- levels(d.responses_all$exp_subject_id)
+for (i in 1:length(subj_ids)){
+  n_stim <- nrow(filter(d.responses_all, exp_subject_id == subj_ids[i]))
+  print(c(subj_ids[i],n_stim))
+}
+```
+
+This list shows us all subjects, including those who failed the headphone check and heard 0 stimuli. The only subject with an incomplete set of data is `377660`. They are filtered out before the responses are saved. There are 18 subjects who completed all 12 stimuli.
+
+```{r save responses, echo=FALSE}
+space_press1_vals <- process_responses(d.responses_all$space_press1)
+space_press2_vals <- process_responses(d.responses_all$space_press2)
+
+d.responses_all <- d.responses_all %>%
+  mutate(
+    response1_vals = space_press1_vals,
+    response2_vals = space_press2_vals,
+    space_press1 = NULL,
+    space_press2 = NULL) %>%
+  # filter the subject with incomplete data
+  filter(exp_subject_id != 377660) %>%
+  write_csv('data/responses_timestamps.csv')
+  #print()
 ```
