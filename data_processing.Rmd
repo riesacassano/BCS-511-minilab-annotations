@@ -158,6 +158,10 @@ d.responses_all <- d.responses_all %>%
     space_press2 = NULL) %>%
   # filter the subject with incomplete data
   filter(exp_subject_id != 377660) %>%
-  write_csv('data/responses_timestamps.csv')
-  #print()
+  #write_csv('data/responses_timestamps.csv')
+  print()
+```
+
+
+```{r binarize responses}
 ```
