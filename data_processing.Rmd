@@ -40,6 +40,11 @@ d.survey <- d %>%
 
 ```{r processing function for presses, echo=FALSE}
 process_responses <- function(data){
+  # from the raw version to a list separated by semicolons
+  
+  # if the subjects didn't respond then the entry will be returned as ""
+  data[data==""] <- "values= " 
+
   all_vals <- data %>%
     strsplit("values=") %>%
     transpose()
@@ -48,7 +53,7 @@ process_responses <- function(data){
   all_vals <- substring(all_vals, 2) # remove first ;
   return(all_vals)
   
-  # for use as a list of doubles 
+  # separate values for use as a list of doubles
 #  processed_data <- c()
 #  for (i in 1:length(all_vals)){
 #    vals = flatten(strsplit(toString(all_vals[i][1]), ";"))
@@ -74,11 +79,29 @@ d.practice <- d %>%
   select(c('exp_subject_id','factor1_tg1_task28',
            'space_press1','space_press2','strategy')) %>%
   # rename practice task column for readability
-  rename('practice_task' = 'factor1_tg1_task28') %>%
+  rename('practice_task' = 'factor1_tg1_task28')
 
-  
-  # pivot wider???
-  
-  print()
+# text processing of the space presses
+space_press1_vals.pr <- process_responses(d.practice$space_press1)
+space_press2_vals.pr <- process_responses(d.practice$space_press2)
+
+d.practice <- mutate(d.practice,
+                     response1_vals = space_press1_vals.pr,
+                     response2_vals = space_press2_vals.pr,
+                     space_press1 = NULL,
+                     space_press2 = NULL)
+
+d.strat_temp <- d.practice[seq(1, nrow(d.practice), 2),]
+d.strat_temp <- select(d.strat_temp, c(exp_subject_id, strategy))
+#print(d.strat_temp)
+
+d.other_temp <- d.practice[seq(2, nrow(d.practice), 2),]
+d.other_temp <- select(d.other_temp, -strategy)
+#print(d.other_temp)
+
+d.practice_filtered <- d.other_temp
+d.practice_filtered$strategy <- d.strat_temp$strategy
+write_csv(d.practice_filtered, 'data/practice_task.csv')
+print(d.practice_filtered)
 
 ```
