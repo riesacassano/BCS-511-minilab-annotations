@@ -1,7 +1,7 @@
 ---
 title: "Data processing"
 author: "Riesa Cassano"
-date: "3/13/2022"
+date: "3/18/2022"
 output: html_document
 ---
 
@@ -18,10 +18,10 @@ d <- as_tibble(read.csv('data/raw.csv'))
 d <- mutate(d, exp_subject_id = as.factor(exp_subject_id))
 ```
 
-Survey and strategy data are stored in separate data frames (`d.survey` and `d.strategy`). Which condition each subject got for practice is stored in a separate data frame (`d.practice_cond` - not saved). These data frames don't exclude subjects who didn't complete all 12 stimuli.
+Post-experiment survey data is saved for all subjects who completed it in `survey.csv`. 
 
-```{r process survey and strategy data, include=FALSE}
-# get the survey answers and put them in a separate tibble
+```{r process survey data, echo=FALSE}
+# get the survey answers and put them in a separate tibble and save
 survey_qs <- c('Frequenc','Instr','hour','num_instru','name_instru','age_range',
                'best_instru','music_theory','listen_time','genre1','genre2',
                'genre3','earworm','imagery1','imagery2','imagery3','ab_pitch',
@@ -33,22 +33,9 @@ d.survey <- d %>%
   # only grab survey answers
   select(all_of(survey_qs)) %>%
   # put subject ID at front
-  relocate(exp_subject_id) #%>%
+  relocate(exp_subject_id) %>%
+  print()
   #write_csv('data/survey.csv')
-
-# get the strategy answers and put them in a separate tibble
-d.strategy <- d %>%
-  select(c('exp_subject_id','Task_Name','strategy')) %>%
-  filter(strategy != "") #%>% # some subjects might not always answer
-  # this just gives us when they did answer
-  #write_csv('data/strategy.csv')
-
-# what condition did the subject get for practice?
-d.practice_cond <- d %>%
-  select(c('exp_subject_id','factor1_tg1_task28')) %>%
-  rename('practice_cond' = 'factor1_tg1_task28') %>%
-  filter(practice_cond != "") #%>%
-  #write_csv('data/practice_cond.csv')
 ```
 
 ```{r processing function for presses, echo=FALSE}
@@ -76,32 +63,22 @@ process_responses <- function(data){
 
 ```
 
-After processing, data contains the subject ID, task name, and the response values for each run. The response values are saved as a string of space presses in milliseconds, separated by semicolons. The responses for the practice task are removed.
 
-```{r process responses, echo=FALSE}
-# filter/select to get only press data
-d %<>% 
-  select(c('exp_subject_id','Task_Name','space_press1','space_press2')) %>%
-  filter(space_press1 != "") %>%
-  filter(Task_Name != 'practice_task') %>% # remove the practice task
-  filter(!exp_subject_id %in% c(377660,377735,377665,377660)) #%>%
+Everything related to the practice task is saved in `practice_task.csv`.
 
-#print(unique(d$exp_subject_id))
+```{r process everything related to practice task, echo=FALSE}
+d.practice <- d %>%
+  # filter out rows not related to practice task 
+  filter(grepl('practice', Task_Name)) %>%
+  # we want columns related to practice task
+  select(c('exp_subject_id','factor1_tg1_task28',
+           'space_press1','space_press2','strategy')) %>%
+  # rename practice task column for readability
+  rename('practice_task' = 'factor1_tg1_task28') %>%
 
-space_press1_vals <- process_responses(d$space_press1)
-space_press2_vals <- process_responses(d$space_press2)
-#print(space_press1_vals)
-
-d %<>%
-  mutate(
-    response1_vals = space_press1_vals,
-    response2_vals = space_press2_vals,
-    space_press1 = NULL,
-    space_press2 = NULL,
-  ) #%>%
-  #write_csv('data/responses.csv')
-  #print()
-
-#print(d$response1_vals)
+  
+  # pivot wider???
+  
+  print()
 
 ```
