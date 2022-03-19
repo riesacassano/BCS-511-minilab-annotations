@@ -201,7 +201,14 @@ for (i in 1:nrow(d.binarized)){
 }
 
 d.binarized$response_vals <- NULL
-#write_csv(d.binarized, 'data/responses_binarized.csv')
+#write_csv(d.binarized, 'data/responses_binarized_wide.csv')
 print(d.binarized)
+
+# convert from wide to long
+d.binarized %>%
+  pivot_longer(-c(exp_subject_id,scram_cond,stim_num,run), 
+               names_to = 'time', values_to = 'response') %>%
+  write_csv('data/responses_binarized_long.csv')
+  #print()
 
 ```
