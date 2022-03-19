@@ -38,7 +38,7 @@ d.survey <- d %>%
   print()
 ```
 
-```{r processing function for presses, echo=FALSE}
+```{r initial string processing function for responses, echo=FALSE}
 process_responses <- function(data){
   # from the raw version to a list separated by semicolons
   
@@ -53,21 +53,6 @@ process_responses <- function(data){
   all_vals <- substring(all_vals, 2) # remove first ;
   return(all_vals)
 }
-
-process_responses_to_dbls <- function(data){
-  # separate values for use as a list of doubles
-  processed_data <- c()
-  for (i in 1:length(data)){
-    vals = flatten(strsplit(toString(data[i][1]), ";"))
-    #vals = vals[-1] # remove first value (empty)
-    #vals = sub('\"', '', vals) # remove \" from last value
-    vals = as.numeric(as.list(vals)) # save as a list of numerics
-    vals = as_tibble(vals / 1000) # convert ms to s and make a tibble
-    processed_data <- c(processed_data,vals)
-  }
-  return(processed_data)
-}
-
 ```
 
 
@@ -157,11 +142,41 @@ d.responses_all <- d.responses_all %>%
     space_press1 = NULL,
     space_press2 = NULL) %>%
   # filter the subject with incomplete data
-  filter(exp_subject_id != 377660) %>%
-  #write_csv('data/responses_timestamps.csv')
-  print()
+  filter(exp_subject_id != 377660)
+  
+# separate condition and stimulus number into separate columns
+stimulus <- transpose(str_split(d.responses_all$Task_Name,"_"))
+  
+d.responses_all %<>%
+  mutate(
+    scram_cond = as.character(stimulus[[1]]),
+    stim_num = as.character(stimulus[[2]]),
+    Task_Name = NULL
+  ) %>%
+  relocate(c(scram_cond, stim_num), .after=exp_subject_id) %>%
+  write_csv('data/responses_timestamps.csv')
+  #print()
 ```
 
+As a final processing step, we'll represent the responses as binary vectors. For this we'll bin into one-second bins. 1 represents seconds where a responses occurred in that second, and 0 represents seconds where no response occurred in that second. Since not all of the stimuli are the same length, there are variable amounts of padding added to the end of each binary vector (maximum 6 seconds).
 
-```{r binarize responses}
+```{r echo=FALSE}
+
+process_responses_to_dbls <- function(data){
+  # separate values for use as a list of doubles
+  processed_data <- c()
+  for (i in 1:length(data)){
+    vals = flatten(strsplit(toString(data[i][1]), ";"))
+    #vals = vals[-1] # remove first value (empty)
+    #vals = sub('\"', '', vals) # remove \" from last value
+    vals = as.numeric(as.list(vals)) # save as a list of numerics
+    vals = as_tibble(vals / 1000) # convert ms to s and make a tibble
+    processed_data <- c(processed_data,vals)
+  }
+  return(processed_data)
+}
+
+```
+
+```{r binarize responses, echo=FALSE}
 ```
