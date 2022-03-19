@@ -1,0 +1,43 @@
+---
+title: "'Ground truth': phrase boundaries"
+author: "Riesa Cassano"
+date: "3/19/2022"
+output: html_document
+---
+
+Here are the 'ground truth' labels that indicate phrase structure in the stimuli. From these labels, we generate and save a data frame that is in the same format as `responses_binarized_long.csv` for use with that data.
+
+#### Description
+Actual phrase boundaries are extracted from the Intact and 8B conditions. Since these conditions have intact phrases, these phrase boundaries are meaningful in that they are descriptive of actual structure in the stimuli. 
+
+Pseudo-phrase boundaries are constructed for the 2B and 1B conditions. These simply mark every eight bars, approximately the length of actual phrases in Intact and 8B. These conditions do not have intact phrases, so these pseudo-phrase boundaries don't reflect structure in the stimuli. We expect that these pseudo-phrase boundaries will have nothing to do with the boundaries that the subjects actually perceive. However, it is possible that the subjects have a 'natural' response rate that is close to 8-bar phrases - using these pseudo-phrase boundaries to predict subject responses might pick up on some regularity in the response data.
+
+#### Time points
+Phrases in **Intact** (original, long stimulus) begin at:
+1,19,35,51,67,79,95,111,126,143,159,175,193,209,225
+
+The original stimulus is split into thirds:
+
+* intact_1 (seconds 1-78) contains boundaries at [19,35,51,67]
+
+* intact_2 (seconds 79-158) contains boundaries at 79,95,111,126,143 aka [17,33,48,65]
+
+* intact_3 (seconds 159-240) contains boundaries at 159,175,193,209,225 aka [17,35,51,67]
+
+
+Phrases in **8B** (original, long stimulus) begin at:
+1,19,35,51,67,85,101,117,133,149,165,181,197,213,225
+
+Again, the original stimulus is split into thirds:
+
+* 8B_1 (seconds 0-84) contains boundaries at [19,35,51,67]
+
+* 8B_2 (seconds 85-164) contains boundaries at 85,101,117,133,149 aka [17,33,49,65]
+
+* 8B_3 (seconds 165-240) contains boundaries at 165,181,197,213,225 aka [17,33,49,61]
+
+
+Pseudo-phrase boundaries in **2B** and **1B** are identical. They begin at: `16*x + 1` since each 8-bar phrase is 16 seconds long (each bar is 2 beats, each beat is one second).
+
+#### Timepoints in a usable format (binary vector)
+In the generated `.csv`, 'phrase boundaries' are marked at the end of the phrase, with a `1` in the last second of the phrase (`0` elsewhere).
