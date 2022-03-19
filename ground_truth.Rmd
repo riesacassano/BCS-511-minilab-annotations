@@ -5,6 +5,11 @@ date: "3/19/2022"
 output: html_document
 ---
 
+```{r libraries, include=FALSE}
+library(tidyverse)
+library(magrittr)
+```
+
 Here are the 'ground truth' labels that indicate phrase structure in the stimuli. From these labels, we generate and save a data frame that is in the same format as `responses_binarized_long.csv` for use with that data.
 
 #### Description
@@ -18,11 +23,11 @@ Phrases in **Intact** (original, long stimulus) begin at:
 
 The original stimulus is split into thirds:
 
-* intact_1 (seconds 1-78) contains boundaries at [19,35,51,67]
+* intact_1 (seconds 1-78) contains boundaries at 19,35,51,67
 
-* intact_2 (seconds 79-158) contains boundaries at 79,95,111,126,143 aka [17,33,48,65]
+* intact_2 (seconds 79-158) contains boundaries at 79,95,111,127,143 aka 17,33,49,65
 
-* intact_3 (seconds 159-240) contains boundaries at 159,175,193,209,225 aka [17,35,51,67]
+* intact_3 (seconds 159-240) contains boundaries at 159,175,193,209,225 aka 17,35,51,67
 
 
 Phrases in **8B** (original, long stimulus) begin at:
@@ -30,14 +35,73 @@ Phrases in **8B** (original, long stimulus) begin at:
 
 Again, the original stimulus is split into thirds:
 
-* 8B_1 (seconds 0-84) contains boundaries at [19,35,51,67]
+* 8B_1 (seconds 0-84) contains boundaries at 19,35,51,67
 
-* 8B_2 (seconds 85-164) contains boundaries at 85,101,117,133,149 aka [17,33,49,65]
+* 8B_2 (seconds 85-164) contains boundaries at 85,101,117,133,149 aka 17,33,49,65
 
-* 8B_3 (seconds 165-240) contains boundaries at 165,181,197,213,225 aka [17,33,49,61]
+* 8B_3 (seconds 165-240) contains boundaries at 165,181,197,213,225 aka 17,33,49,61
 
 
 Pseudo-phrase boundaries in **2B** and **1B** are identical. They begin at: `16*x + 1` since each 8-bar phrase is 16 seconds long (each bar is 2 beats, each beat is one second).
 
 #### Timepoints in a usable format (binary vector)
-In the generated `.csv`, 'phrase boundaries' are marked at the end of the phrase, with a `1` in the last second of the phrase (`0` elsewhere).
+In the generated csv (`ground_truth_phrase_boundaries.csv`), phrase boundaries (intact, 8B) and pseudo-phrase boundaries (2B, 1B) are marked at the end of the phrase, with a 1 in the last second of the phrase (0 elsewhere).
+
+```{r generate, echo=FALSE}
+scram_cond <- c('intact','8B','2B','1B')
+stim_num <- c(1,2,3)
+# each stimulus gets a row in the phrase boundaries (pb) dataframe
+pb <- crossing(scram_cond, stim_num)
+
+# for the Intact and 8B phrases, we include the end of the last phrase of the stimuli, to make it more accurate with the padding at the end
+
+# last second of each pseudo-phrase in 2B and 1B stimuli
+pseudo_pb <- c(16,32,48,64,80)
+
+all_pb <- list(pseudo_pb, # 1B 1
+               pseudo_pb, # 1B 2
+               pseudo_pb, # 1B 3
+               pseudo_pb, # 2B 1
+               pseudo_pb, # 2B 2
+               pseudo_pb, # 2B 3
+               c(18,34,50,66,84), # 8B 1 19,35,51,67
+               c(16,32,48,64,80), # 8B 2 17,33,49,65 
+               c(16,32,48,60,76), # 8B 3 17,33,49,61 
+               c(18,34,50,66,78), # Intact 1 19,35,51,67
+               c(16,32,48,64,80), # Intact 2 17,33,49,65
+               c(16,34,50,66,82)) # Intact 3 17,35,51,67
+
+pb$pb_vals <- all_pb
+
+# The longest stimulus is 1:25, so the binary vectors are at most 85 seconds long.
+response_vec_length <- 85
+# There are two "identification" columns (scram_cond, stim_num) and then the data (pb_vals)
+id_cols <- ncol(pb)
+
+# add the columns of zeros
+seconds <- as.character(0:response_vec_length)
+pb[seconds] <- 0
+
+# use pb_vals to determine which seconds have a response in them
+for (i in 1:nrow(pb)){
+  
+  # grab the response values for this row and make them ints
+  these_vals <- as.integer(unlist(pb$pb_vals[i]))
+  
+  # use those values to index in the columns we created
+  for (j in these_vals){
+    pb[[j+id_cols+1]][i] <- 1 # id_cols+1 is for '0'
+  }
+  
+}
+
+pb$pb_vals <- NULL
+
+# convert from wide to long
+pb %>%
+  pivot_longer(-c(scram_cond,stim_num), 
+               names_to = 'time', values_to = 'response') %>%
+  #write_csv('data/ground_truth_phrase_boundaries.csv')
+  print()
+
+```
