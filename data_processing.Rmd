@@ -160,24 +160,6 @@ d.responses_all %<>%
 
 As a final processing step, we'll represent the responses as binary vectors. For this we'll bin into one-second bins. 1 represents seconds where a responses occurred in that second, and 0 represents seconds where no response occurred in that second. Since not all of the stimuli are the same length, there are variable amounts of padding added to the end of each binary vector (maximum 6 seconds).
 
-```{r process?, echo=FALSE}
-
-process_responses_to_dbls <- function(data){
-  # separate values for use as a list of doubles
-  processed_data <- c()
-  for (i in 1:length(data)){
-    vals = flatten(strsplit(toString(data[i][1]), ";"))
-    #vals = vals[-1] # remove first value (empty)
-    #vals = sub('\"', '', vals) # remove \" from last value
-    vals = as.numeric(as.list(vals)) # save as a list of numerics
-    vals = as_tibble(vals / 1000) # convert ms to s and make a tibble
-    processed_data <- c(processed_data,vals)
-  }
-  return(processed_data)
-}
-
-```
-
 ```{r binarize responses, echo=FALSE}
 d.binarized <- d.responses_all %>%
   # put all responses in one column
@@ -219,7 +201,7 @@ for (i in 1:nrow(d.binarized)){
 }
 
 d.binarized$response_vals <- NULL
-write_csv(d.binarized, 'data/responses_binarized.csv')
-#print(d.binarized)
+#write_csv(d.binarized, 'data/responses_binarized.csv')
+print(d.binarized)
 
 ```
