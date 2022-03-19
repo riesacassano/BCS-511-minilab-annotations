@@ -154,13 +154,13 @@ d.responses_all %<>%
     Task_Name = NULL
   ) %>%
   relocate(c(scram_cond, stim_num), .after=exp_subject_id) %>%
-  write_csv('data/responses_timestamps.csv')
-  #print()
+  #write_csv('data/responses_timestamps.csv')
+  print()
 ```
 
 As a final processing step, we'll represent the responses as binary vectors. For this we'll bin into one-second bins. 1 represents seconds where a responses occurred in that second, and 0 represents seconds where no response occurred in that second. Since not all of the stimuli are the same length, there are variable amounts of padding added to the end of each binary vector (maximum 6 seconds).
 
-```{r echo=FALSE}
+```{r process?, echo=FALSE}
 
 process_responses_to_dbls <- function(data){
   # separate values for use as a list of doubles
@@ -179,4 +179,47 @@ process_responses_to_dbls <- function(data){
 ```
 
 ```{r binarize responses, echo=FALSE}
+d.binarized <- d.responses_all %>%
+  # put all responses in one column
+  pivot_longer(c('response1_vals','response2_vals'),
+               names_to='run_col',values_to='response_vals') %>%
+  mutate(run = ifelse(run_col=='response1_vals',1,2), run_col = NULL) %>%
+  relocate(run,.before='response_vals')
+
+# The longest stimulus is 1:25, so the binary vectors are at most 85 seconds long.
+response_vec_length <- 85
+# There are three "identification" columns (exp_subject_id, Task_Name, run) and then the data (response_vals)
+id_cols <- ncol(d.binarized)
+
+# add the columns of zeros
+seconds <- as.character(0:response_vec_length)
+d.binarized[seconds] <- 0
+
+# use response_vals to determine which seconds have a response in them
+for (i in 1:nrow(d.binarized)){
+  
+  # grab the response values for this row
+  these_vals <- d.binarized$response_vals[i]
+  
+  # if there are no responses, move on to the next row
+  if (these_vals == "") {next}
+  
+  # separate the values 
+  these_vals <- as.numeric(unlist(strsplit(these_vals, ";")))
+  
+  # convert milliseconds to seconds 
+  # and convert doubles to integers to drop what's after the decimal point
+  these_vals <- as.integer(these_vals / 1000)
+  
+  # use those values to index in the columns we created
+  for (j in these_vals){
+    d.binarized[[j+id_cols+1]][i] <- 1 # id_cols+1 is for '0'
+  }
+  
+}
+
+d.binarized$response_vals <- NULL
+write_csv(d.binarized, 'data/responses_binarized.csv')
+#print(d.binarized)
+
 ```
