@@ -129,7 +129,7 @@ for (i in 1:length(subj_ids)){
 }
 ```
 
-This list shows us all subjects, including those who failed the headphone check and heard 0 stimuli. The only subject with an incomplete set of data is `377660`. They are filtered out before the responses are saved. There are 18 subjects who completed all 12 stimuli.
+This list shows us all subjects, including those who failed the headphone check and heard 0 stimuli. The only subject with an incomplete set of data is `377660`. They are filtered out before the responses are saved. There are 18 subjects who completed all 12 stimuli. Responses are saved as strings separated by semicolons (`responses_timestamps_str.csv`).
 
 ```{r save responses, echo=FALSE}
 space_press1_vals <- process_responses(d.responses_all$space_press1)
@@ -142,8 +142,14 @@ d.responses_all <- d.responses_all %>%
     space_press1 = NULL,
     space_press2 = NULL) %>%
   # filter the subject with incomplete data
-  filter(exp_subject_id != 377660)
+  filter(exp_subject_id != 377660) %>%
   
+  # put all responses in one column
+  pivot_longer(c('response1_vals','response2_vals'),
+               names_to='run_col',values_to='response_vals') %>%
+  mutate(run = ifelse(run_col=='response1_vals',1,2), run_col = NULL) %>%
+  relocate(run,.before='response_vals')
+
 # separate condition and stimulus number into separate columns
 stimulus <- transpose(str_split(d.responses_all$Task_Name,"_"))
   
@@ -154,23 +160,25 @@ d.responses_all %<>%
     Task_Name = NULL
   ) %>%
   relocate(c(scram_cond, stim_num), .after=exp_subject_id) %>%
-  #write_csv('data/responses_timestamps.csv')
+  #write_csv('data/responses_timestamps_str.csv')
   print()
+
+# separate the response values into numerics and give them each their own row
+#d.responses_all_long <- d.responses_all %>%
+#  separate(response_vals, into='timestamps', sep=';') %>% # unhappy
+#  print()
+
+
 ```
 
-As a final processing step, we'll represent the responses as binary vectors. For this we'll bin into one-second bins. 1 represents seconds where a responses occurred in that second, and 0 represents seconds where no response occurred in that second. Since not all of the stimuli are the same length, there are variable amounts of padding added to the end of each binary vector (maximum 6 seconds).
+As a final processing step, we'll represent the responses as binary vectors. For this we'll bin into one-second bins. 1 represents seconds where a responses occurred in that second, and 0 represents seconds where no response occurred in that second. Since not all of the stimuli are the same length, there are variable amounts of padding added to the end of each binary vector (maximum 6 seconds). The binarized representations are saved in both wide (`responses_binarized_wide.csv`) and long (`responses_binarized_long.csv`) forms.
 
 ```{r binarize responses, echo=FALSE}
-d.binarized <- d.responses_all %>%
-  # put all responses in one column
-  pivot_longer(c('response1_vals','response2_vals'),
-               names_to='run_col',values_to='response_vals') %>%
-  mutate(run = ifelse(run_col=='response1_vals',1,2), run_col = NULL) %>%
-  relocate(run,.before='response_vals')
+d.binarized <- d.responses_all
 
 # The longest stimulus is 1:25, so the binary vectors are at most 85 seconds long.
 response_vec_length <- 85
-# There are three "identification" columns (exp_subject_id, Task_Name, run) and then the data (response_vals)
+# There are four "identification" columns (exp_subject_id, scram_cond, stim_num, run) and then the data (response_vals)
 id_cols <- ncol(d.binarized)
 
 # add the columns of zeros
@@ -208,7 +216,7 @@ print(d.binarized)
 d.binarized %>%
   pivot_longer(-c(exp_subject_id,scram_cond,stim_num,run), 
                names_to = 'time', values_to = 'response') %>%
-  write_csv('data/responses_binarized_long.csv')
-  #print()
+  #write_csv('data/responses_binarized_long.csv')
+  print()
 
 ```
