@@ -17,3 +17,28 @@ exp_subject_id,Frequenc,Instr,hour,num_instru,name_instru,age_range,best_instru,
 377650,Occasionally,4-5 years,3-4 hours,2,"Voice, keyboard",20-23,Keyboard,0 years,3-4 hours,Folk,Experimental,Drone,5,7,7,7,No,Yes,1,no
 377648,Occasionally,4-5 years,1.5 hours,1,Acoustic guitar,10-15,acoustic guitar,2 years,2 hours,Pop,R&B,Soul,4,6,6,1,Yes,I don't know,2,no
 377647,4-5 Days/Week,10 or more years,3-4 hours,5,"Voice, piano, guitar, flute, viola",12-20,Voice,3-5 years,30-60 min,Indie,Rock,Pop,5,7,7,7,No,Yes,2,no
+393320,Weekly,10 or more years,2 hours,3,"voice, piano, guitar",10-22,voice,3-5 years,30-60 min,rock,indie,jazz,5,5,5,4,No,No,1,no
+393277,Occasionally,4-5 years,2 hours,5,"piano, accordion, harmonica, drums, guitar",10-15,piano,0 years,30-60 min,"oldies (50s, 60s, 70s)",epic/film/trailer music,reggae,4,5,7,5,No,Yes,3,no
+393267,Occasionally,10 or more years,1.5 hours,1,Piano,age 14-26,Piano,6 or more years,30-60 min,Rock,Classic,Jazz,3,6,7,4,I don't know,I don't know,3,no
+393263,Occasionally,4-5 years,3-4 hours,2,Acoustic guitar and piano,14-18,Piano,3-5 years,15-30 min,Rock,Soul,Classic,4,6,5,6,No,No,1,no
+393251,Monthly,4-5 years,1 hour,1,Classical Guitar,8-14,Classical guitar,1 year,30-60 min,pop,country,ethnic,4,4,5,6,No,No,2,no
+393232,Occasionally,less than a year,0.5 hours,3,"guitar, synthesizer, drums","piano at 5, guitar 12, drums 19",drums,0.5 years,3-4 hours,rock,electronic,pop,3,7,6,5,I don't know,Yes,1,no
+393275,Occasionally,2 years,0.5 hours,4,"Piano, voice, guitar, ukulele","Voice - 5 years, guitar - 12, piano - 16, ukulele - 13",Guitar,0.5 years,2 hours,Indie,Rock,Rap,4,6,5,6,No,Yes,1,no
+393254,Occasionally,6-9 years,5 or more hours,3,"Bassguitar, Guitar, Piano",12-26,bassguitar,3-5 years,5 hours or more,Rock,Chillstep music,Techno,5,6,5,2,No,Yes,2,no
+393253,,,,NA,,,,,30-60 min,rock,jazz,ambient,2,6,6,5,,,2,no
+393252,Occasionally,6-9 years,1 hour,2,"violin, piano",7-13,violin,0 years,30-60 min,R&B,pop,Indie,5,6,6,5,No,Yes,1,no
+393247,2-3 Days/Week,4-5 years,2 hours,2,"Classical guitar, electric bass guitar",15-22,bass guitar,3-5 years,15-30 min,Salsa,Heavy Metal,Jazz,4,5,5,5,No,No,1,no
+393249,4-5 Days/Week,6-9 years,1 hour,4,"Guitar, Keyboard, Ukulele, Voice",15-19,Guitar,0 years,3-4 hours,Rock,Metal,Indie,5,7,7,7,No,Yes,2,no
+393245,Occasionally,10 or more years,2 hours,4,"voice, accordion, piano, ukelele",5-15 (every instrument),accordion,6 or more years,2 hours,R&B,reggae,hip hop,5,7,7,7,No,Yes,2,no
+393246,Occasionally,10 or more years,3-4 hours,2,"voice, piano",10-17,piano ,0 years,30-60 min,bedroom pop ,folk indie?,idk emo,5,6,7,1,I don't know,I don't know,2,no
+393244,Occasionally,1 year,2 hours,1,flute,age 8-19,flute,0 years,30-60 min,hip hop,rock,rap,5,7,6,4,I don't know,Yes,1,no
+393242,2-3 Days/Week,10 or more years,1.5 hours,4,"Guitar, keyboard, drums, voice",16-31,"guitar, voice",0 years,30-60 min,Jazz,indie rock,Classic,3,6,5,7,Yes,I don't know,1,no
+393241,Monthly,10 or more years,1.5 hours,3,"Voice, guitar, ukelele, piano","12-24, 13-24, 19-24, 19-24",Voice,2 years,15-30 min,Mexican Bolero,Reggeton,Pop,5,7,7,7,No,Yes,2,no
+393240,4-5 Days/Week,10 or more years,0.5 hours,3,"guitar, drum, violin","13-28, 15-28, 11-16",guitar,3-5 years,15-30 min,funk,pop,rock,2,4,3,3,No,Yes,3,no
+393239,Occasionally,6-9 years,1.5 hours,2,"Clarinet, piano",age 7-18,Clarinet,6 or more years,30-60 min,Reggaeton,Pop,R&B,5,5,3,6,No,Yes,4,yes
+393236,Occasionally,4-5 years,3-4 hours,2,"Guitar, bass guitar","16, 17, 18",Guitar,0 years,2 hours,Rock,New wave,New romantic,3,5,7,5,No,I don't know,4,yes
+393233,4-5 Days/Week,less than a year,1 hour,3,"Drums, Guitar (classic and electric),Piano",12-17,Guitar,3-5 years,30-60 min,Hip-Hop,Rock,Punk,5,7,1,2,No,No,1,no
+393231,2-3 Days/Week,6-9 years,1 hour,2,"piano,guitar",12-18,piano,0 years,15-30 min,jazz,blues ,pop,5,7,5,7,No,I don't know,3,no
+393230,Weekly,10 or more years,2 hours,3,"Piano, Saxophone, Singing, Drums",age 8-19,Piano,6 or more years,60-90 min,Jazz,Pop,R&B,5,6,7,5,No,Yes,2,no
+393229,Monthly,2 years,1 hour,1,Guitar,23-25,Guitar,0 years,60-90 min,Metal,Rap,EDM,5,6,6,6,No,I don't know,2,no
+393227,Biweekly,4-5 years,1.5 hours,1,Guitar,10-15,Guitar,3-5 years,30-60 min,(Portuguese) Rap,Metal,Drum'n'bass,5,4,5,3,No,Yes,1,no

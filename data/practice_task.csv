@@ -1,4 +1,4 @@
-exp_subject_id,practice_task,response1_vals,response2_vals,strategy
+exp_subject_id,practice_cond,response1_vals,response2_vals,strategy
 377777,1B_practice,,3010,I was just tying to listen carefully to the piece I was hearing.
 377770,8B_practice,6131;25423;33411;49460,7921;33926;50129,"I was not sure to click space once or every time I notice meaningful change, so I clicked space few times. I tried to feel the rhythm, I mean just a melody whose successive tones fit together - if suddenly there was a change that I would normally classify as a fake, it was a sign for me that I was dealing with a significant (meaningful) change."
 377747,2B_practice,895;10232;18855;37753;49640;55893;61614,830;9568;17053;20453;34105;34293;40341;45601;55650;58398;61319,"I have pressed a spacebar, when changed melody, rhythm, volume  of sound"
@@ -19,3 +19,29 @@ exp_subject_id,practice_task,response1_vals,response2_vals,strategy
 377650,1B_practice,397;6021;13142;17976;25121;33518;37707;46705;55088;62927,923;12809;22334;25185;34514;37205;46762;62247,Tried to quickly predict what the next progression could be. The changes were more significant in rhythm and tempo than in tone.
 377648,1B_practice,249;50868,920;14141;37927,I tried to hear if the melody or rhythm changed in a notorious way
 377647,2B_practice,7233;18881;42661;55516;57875;60889,642;10227;12472;19981;38612;53560;57617;60624,identify a major or minor tone
+393320,8B_practice,7001;32511;49046,6607;33489;49185,"to complete the task I went by the motifs of the piece, each time the motif changed i clicked  the space bar"
+393277,1B_practice,4015;22703;28946;46995;58736,732;6093;13365;18587;47488;57367;62942,I compared the two tracks as they were very similar and tried to learn the pattern
+393267,8B_practice,1280;53688,6680;32777;50202,simply hearing the music paying attention to his rhytmic chang
+393263,8B_practice,6981;18632;34030;50271,7272;33566;49127,"When the tone or the rhythm changed, I pressed the space bar"
+393251,2B_practice,9848;61810,1453;43666,I simply lsiten carefully and when I felt a change that didnt fit with the complete song I press the space bar
+393232,1B_practice,,365;8427;13123;28707;34011;48171;61555,At first i did not press space because i wanted to examine what you mean by meaningful but i unster
+393275,8B_practice,636;16973;19024;34502,6550;34100;49885,I pressed the spacebar when the tempo changed or when the scale of the music changed.
+393260,1B_practice,3402;32926;38463;47139,0255;12763;22565;32646;38203,No strategy
+393254,intact_practice,6577;30719;47291;54111,,just listening carefull to the tones of the music
+393253,2B_practice,9586,8110;23085,I tried to keep up with the tempo and intensity of the piece
+393252,intact_practice,8214,1662,At first i tried to figure out what type of change it would be and pressed spacebar when I heard a weird sound. On the second try I knew that the change was in melody (left hand 
+393247,8B_practice,8263;35648;50504,6531;34679;50573,"I looked for changes in tonality or volume. I also tried to listen for hidden frequencies, but heard none"
+393249,2B_practice,391;7598;8610;9938;16892;25928;38037;45424;51418;55934;60922,105;8420;11619;16879;38121;49431;55823;60900,I listened carefully while staring at one point
+393245,intact_practice,6912,8974;27070,I pressed the space bar when the notes became deeper and seemed to steer away from the beginning of the song. It was a difficult task but I think this was the better strategy to use.
+393246,intact_practice,1154;17678;26211;39207;44632;52263;58450,7541;27256;34726;39310;46403;59367,i pressed the space bar when i thought the key changed
+393244,2B_practice,,9048;39354;40522;41996,i did not find any meaningfull changes
+393242,1B_practice,9603;23742;31890;33494;37014;39630;47562;59410,2734;16856;18920;22864;33068;46934;58874,"pressed the spacebar when the tone and rythm changed, like tal"
+393241,8B_practice,9684,6748;35163;51516;59347,Try to understand the sequences that were being played and determine whether there were major changes or not.
+393240,1B_practice,7357;22419;30907;36795;42707;47099;51763;54459;59075;63211,277;13629;18205;22309;30149;35205;46381;57437,"I noted the changing of the flow of the music, the ritmic changes and the mood of the piece"
+393239,1B_practice,9300;22545;24403;46769;47486;50351,4317;21058,It sounds less melodic. 
+393236,2B_practice,435;8173;10609;16435;37163;41692;44478;49101;55121;60548,600;10825;22602;30709;37496;39280;41297;45302;52635;56565;60631;65039,I tried to focus on difference of keys in which the music was played
+393233,2B_practice,201;10583;16975;19447;38784;44232;54600;57176;64576,993;9538;16729;38570;45930;54330;58338;61714,I was pressing the button when the melody or the section of the song chan
+393231,1B_practice,,3818,i concentrate on the song and tried to listen to some  dissonancy or melody change
+393230,intact_practice,,7644;25601;31432;38812;43813,"I distinguished like 3 maybe 4 ""parts"" in this elody. Some parts were going """
+393229,8B_practice,,6701;35043;51179,Press spacebar when there will be change in the music  
+393227,1B_practice,903;7376;61144;62831;63344;63504;63680;63840;64000,8114;31473;31697;38530,"When there were key shifts, as a example, wen the key goes to minor to major or during the chord progression "
