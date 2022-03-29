@@ -1,0 +1,157 @@
+---
+title: "Minilab 3: annotations"
+author: "Riesa Cassano"
+date: "3/29/2022"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE, message = FALSE)
+library(tidyverse)
+library(magrittr)
+```
+
+First, load the data in long format.
+```{r load data, include=FALSE}
+data_long <- as_tibble(read_csv('data/responses_binarized_long.csv'))
+
+# convert exp_subject_id to a factor
+data_long <- mutate(data_long, exp_subject_id = as.factor(exp_subject_id))
+```
+
+For easier handling, nest each run into one cell.
+```{r nest responses}
+data <- data_long %>%
+  group_by(exp_subject_id, scram_cond, stim_num, run) %>%
+  nest(response_tbl = c(time,response)) %>%
+  print()
+```
+
+Looking at one example. The seconds are in the first column, the binary vector of responses is in the second column.
+```{r example vector}
+data$response_tbl[[1]]
+data$response_tbl[[1]][[2]]
+```
+
+### Response rates (sanity check)
+Calculate response rates by summing over number of responses per run and dividing by 80 seconds (1.33 minutes).
+```{r calculate response rates}
+response_rate <- data_long %>%
+  group_by(exp_subject_id, scram_cond, stim_num, run) %>%
+  summarize(response_count = sum(response)) %>%
+  mutate(response_rate = response_count / 1.33) %>%
+  print()
+```
+
+Average over stimuli and runs to get an average response rate by subject.
+```{r avg rate per subject}
+p_avg_rate_subj <- response_rate %>%
+  group_by(exp_subject_id) %>%
+  summarize(mean_rate = mean(response_rate), sd_rate = sd(response_rate)) %>%
+  print() %>%
+  
+  ggplot(aes(x = exp_subject_id, y = mean_rate)) +
+  geom_bar(stat = 'identity') +
+  geom_errorbar(aes(ymin = mean_rate - sd_rate, ymax = mean_rate + sd_rate)) +
+  labs(title = "Mean response rate per subject",
+       x = "subject",
+       y = "mean response rate (responses/minute)") +
+  theme(axis.text.x = element_text(angle = -90, vjust = 0.5, hjust = 1))
+  
+p_avg_rate_subj
+```
+
+Average over subjects to get an average response rate by stimulus.
+```{r avg rate per stimulus}
+p_avg_rate_stim <- response_rate %>%
+  mutate(scram_cond = as.factor(scram_cond),
+         stim_num = as.factor(stim_num)) %>%
+  group_by(scram_cond, stim_num) %>%
+  summarize(mean_rate = mean(response_rate), sd_rate = sd(response_rate)) %>%
+  print() %>%
+  
+  ggplot(aes(x = scram_cond, y = mean_rate, fill = stim_num)) +
+  geom_bar(stat = 'identity', position = "dodge") +
+  geom_errorbar(aes(ymin = mean_rate - sd_rate, ymax = mean_rate + sd_rate),
+                position = "dodge") +
+  labs(title = "Mean response rate per condition and stimulus number",
+       x = "condition",
+       fill = "stimulus number",
+       y = "mean response rate (responses/minute)")
+
+
+p_avg_rate_stim
+```
+
+Averaging over stimulus number to just look at average response rate by condition.
+```{r avg rate per condition}
+p_avg_rate_cond <- response_rate %>%
+  mutate(scram_cond = as.factor(scram_cond)) %>%
+  group_by(scram_cond) %>%
+  summarize(mean_rate = mean(response_rate), sd_rate = sd(response_rate)) %>%
+  print() %>%
+  
+  ggplot(aes(x = scram_cond, y = mean_rate)) +
+  geom_bar(stat = 'identity') +
+  geom_errorbar(aes(ymin = mean_rate - sd_rate, ymax = mean_rate + sd_rate),
+                width = 0.5) +
+  labs(title = "Mean response rate per condition",
+       x = "condition",
+       y = "mean response rate (responses/minute)")
+
+p_avg_rate_cond
+```
+
+Based on this plot, there seems to be no difference in mean response rates between 1B and 2B and between 8B and Intact, but there appears to be a difference between the more scrambled conditions (1B and 2B) and the less scrambled conditions (8B and Intact). To test this, let's run a paired t-test (by subject) for each of those observations. To do this by subject, we have to average over all stimuli and runs for each condition for each subject.
+
+```{r avg rate per cond per subject}
+avg_rate_cond_subject <- response_rate %>%
+  mutate(scram_cond = as.factor(scram_cond)) %>%
+  group_by(exp_subject_id, scram_cond) %>%
+  summarize(mean_rate = mean(response_rate)) %>%
+  print()
+  
+p_avg_rate_cond_subject <- avg_rate_cond_subject %>%
+  ggplot(aes(x = scram_cond, y = mean_rate)) +
+  geom_violin() +
+  labs(title = "Mean response rate per condition",
+       x = "condition",
+       y = "mean response rate (responses/minute)")
+
+p_avg_rate_cond_subject
+```
+
+The violin plots are just a different way of visualizing this data. Are these data approximately normally distributed?
+
+```{r test for normality}
+dist.1B <- filter(avg_rate_cond_subject, scram_cond == '1B')$mean_rate
+dist.2B <- filter(avg_rate_cond_subject, scram_cond == '2B')$mean_rate
+dist.8B <- filter(avg_rate_cond_subject, scram_cond == '8B')$mean_rate
+dist.intact <- filter(avg_rate_cond_subject, scram_cond == 'intact')$mean_rate
+
+shapiro.test(dist.1B)
+shapiro.test(dist.2B)
+shapiro.test(dist.8B)
+shapiro.test(dist.intact)
+```
+
+Since none of these distributions are normally distributed, a non-parametric test is appropriate - specifically a paired samples Wilcoxon test (aka Wilcoxon signed rank test). We expect that the difference between 1B and 2B is not significant and that the difference between 8B and intact is not significant.
+
+```{r Wilcoxon test between conds, warning=FALSE}
+wilcox.test(dist.1B, dist.2B, paired = TRUE)
+wilcox.test(dist.8B, dist.intact, paired = TRUE)
+```
+
+The difference between 2B and 1B is not significant. However, the difference between 8B and intact is significant. *Warnings from Wilcoxon test: cannot compute exact p-value with ties/zeros.*
+
+<!-- Finally, let's group the conditions into more scrambled (2B, 1B) and less scrambled (8B, intact). Although there appears to be a difference between 8B and intact, this grouping makes sense from a music theory perspective - the more scrambled conditions don't have intact phrases and the less scrambled conditions do. !--> 
+
+```{r compare group by scramble level (more/less)}
+
+
+```
+
+
+## Inter-subject agreement
+
+## Predicting responses with the ground truth
