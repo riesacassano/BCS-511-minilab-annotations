@@ -9,9 +9,10 @@ output: html_document
 knitr::opts_chunk$set(echo = FALSE, message = FALSE)
 library(tidyverse)
 library(magrittr)
+library(patchwork)
 ```
 
-First, load the data in long format.
+<!--First, load the data in long format.!-->
 ```{r load data, include=FALSE}
 data_long <- as_tibble(read_csv('data/responses_binarized_long.csv'))
 
@@ -19,36 +20,41 @@ data_long <- as_tibble(read_csv('data/responses_binarized_long.csv'))
 data_long <- mutate(data_long, exp_subject_id = as.factor(exp_subject_id))
 ```
 
-For easier handling, nest each run into one cell.
+<!--For easier handling, nest each run into one cell.!-->
 ```{r nest responses}
 data <- data_long %>%
   group_by(exp_subject_id, scram_cond, stim_num, run) %>%
-  nest(response_tbl = c(time,response)) %>%
-  print()
+  nest(response_tbl = c(time,response)) #%>%
+  #print()
 ```
 
-Looking at one example. The seconds are in the first column, the binary vector of responses is in the second column.
-```{r example vector}
+<!--Looking at one example. The seconds are in the first column, the binary vector of responses is in the second column.!-->
+```{r example vector, include=FALSE}
 data$response_tbl[[1]]
 data$response_tbl[[1]][[2]]
 ```
 
-### Response rates (sanity check)
+### Response rates 
+
 Calculate response rates by summing over number of responses per run and dividing by 80 seconds (1.33 minutes).
+
 ```{r calculate response rates}
 response_rate <- data_long %>%
   group_by(exp_subject_id, scram_cond, stim_num, run) %>%
   summarize(response_count = sum(response)) %>%
-  mutate(response_rate = response_count / 1.33) %>%
-  print()
+  mutate(response_rate = response_count / 1.33) #%>%
+  #print()
 ```
 
+#### Differences between subjects
+
 Average over stimuli and runs to get an average response rate by subject.
+
 ```{r avg rate per subject}
 p_avg_rate_subj <- response_rate %>%
   group_by(exp_subject_id) %>%
   summarize(mean_rate = mean(response_rate), sd_rate = sd(response_rate)) %>%
-  print() %>%
+  #print() %>%
   
   ggplot(aes(x = exp_subject_id, y = mean_rate)) +
   geom_bar(stat = 'identity') +
@@ -61,14 +67,123 @@ p_avg_rate_subj <- response_rate %>%
 p_avg_rate_subj
 ```
 
+Visualizing differences across conditions: average over stimuli and runs in a condition to get an average response rate by subject per condition.
+
+```{r avg rate per subject by condition, fig.height=6, fig.width=10}
+p_avg_rate_subj_cond <- response_rate %>%
+  group_by(exp_subject_id, scram_cond) %>%
+  summarize(mean_rate = mean(response_rate), sd_rate = sd(response_rate)) %>%
+  #print() %>%
+  
+  ggplot(aes(x = exp_subject_id, y = mean_rate)) +
+  facet_wrap(vars(scram_cond), nrow=2, ncol=2) +
+  geom_bar(stat = 'identity') +
+  geom_errorbar(aes(ymin = mean_rate - sd_rate, ymax = mean_rate + sd_rate)) +
+  labs(title = "Mean response rate per subject",
+       x = "subject",
+       y = "mean response rate (responses/minute)") +
+  theme(axis.text.x = element_text(angle = -90, vjust = 0.5, hjust = 1))
+  
+p_avg_rate_subj_cond
+```
+
+It seems like there's more variability in response rate in the 1B and 2B conditions compared to the 8B and intact. One way to explore consistency across subjects is by correlating response rates by subjects across conditions. Subjects with higher rates in 1B are expected to have higher rates in intact relative to other subjects. In a linear model, a non-zero intercept would suggest an effect of condition on response rate. Significant correlation between two conditions could point to some intrinsic, subject-specific rate.
+
+```{r compare rates across conditions, fig.width=10}
+response_rate_wide <- response_rate %>%
+  group_by(exp_subject_id, scram_cond) %>%
+  summarize(mean_rate = mean(response_rate)) %>%
+  pivot_wider(names_from = scram_cond, values_from = mean_rate) #%>%
+  #print()
+
+p_8B_I <- ggplot(response_rate_wide, aes(x = intact, y = `8B`)) +
+  geom_point() +
+  geom_smooth(method=lm) +
+  ylim(0,20)
+
+p_2B_I <- ggplot(response_rate_wide, aes(x = intact, y = `2B`)) +
+  geom_point() +
+  geom_smooth(method=lm) +
+  ylim(0,20)
+  
+p_1B_I <- ggplot(response_rate_wide, aes(x = intact, y = `1B`)) +
+  geom_point() +
+  geom_smooth(method=lm) +
+  ylim(0,20)
+
+p_8B_I + p_2B_I + p_1B_I
+```
+
+```{r linear models compare conditions}
+summary(lm(`8B` ~ intact, response_rate_wide))
+summary(lm(`2B` ~ intact, response_rate_wide))
+summary(lm(`1B` ~ intact, response_rate_wide))
+```
+
+Response rates in intact explain the most variability in response rates in 8B (R^2 = 0.8653) and less variability in 2B (R^2 = 0.5044) and 1B (R^2 = 0.6032). This suggests that subjects are more consistent in rate between intact and 8B. One explanation for rate in intact begin a worse predictor of rate in 2B and 1B is that subjects' behavior changes between the more scrambled conditions and less scrambled conditions. 
+
+In each comparison, the intercept is positive, indicating that there is an effect of condition on response rate and that subjects' response rates in the more scrambled conditions are higher than in the intact condition. Slope estimates are close to 1.0, as expected. For the intact to 1B comparison, slope is slightly larger than 1.0. This seems to be driven by some subjects with lower rates in intact (between 1 and 5 responses per minute) having higher rates than expected in 1B (around 8 to 12 responses per minute).
+
+Follow-up: are subjects consistent between 2B and 1B?
+
+```{r 2B vs 1B}
+p_1B_2B <- ggplot(response_rate_wide, aes(x = `2B`, y = `1B`)) +
+  geom_point() +
+  geom_smooth(method=lm) +
+  ylim(0,20)
+p_1B_2B
+
+summary(lm(`1B` ~ `2B`, response_rate_wide))
+```
+
+Responses rates in 2B explain almost as much variability in 1B (R^2 = 0.8047) as intact does in 8B. The intercept is not different from 0.0 and the slope is very close to 1.0. This suggests that subjects' response rates are consistent between 2B and 1B. This could imply that subjects have an intrinsic response rate that is not related to the stimulus.
+
+Another follow-up: what if the "outlier" is removed? There is one subject whose response rate in intact is around 12.5.
+
+```{r compare rates across conditions no outlier, fig.width=10}
+response_rate_wide_no_out <- response_rate %>%
+  group_by(exp_subject_id, scram_cond) %>%
+  summarize(mean_rate = mean(response_rate)) %>%
+  pivot_wider(names_from = scram_cond, values_from = mean_rate) %>%
+  filter(intact < 10)
+
+p_8B_I <- ggplot(response_rate_wide_no_out, aes(x = intact, y = `8B`)) +
+  geom_point() +
+  geom_smooth(method=lm) +
+  ylim(0,15)
+
+p_2B_I <- ggplot(response_rate_wide_no_out, aes(x = intact, y = `2B`)) +
+  geom_point() +
+  geom_smooth(method=lm) +
+  ylim(0,15)
+  
+p_1B_I <- ggplot(response_rate_wide_no_out, aes(x = intact, y = `1B`)) +
+  geom_point() +
+  geom_smooth(method=lm) +
+  ylim(0,15)
+
+p_8B_I + p_2B_I + p_1B_I
+```
+
+```{r linear models compare conditions no outlier}
+summary(lm(`8B` ~ intact, response_rate_wide_no_out))
+summary(lm(`2B` ~ intact, response_rate_wide_no_out))
+summary(lm(`1B` ~ intact, response_rate_wide_no_out))
+```
+
+It seems like that "outlier" was artificially raising the R^2 values. This is an interesting result, but doesn't motivate exclusion of this subject necessarily.
+
+#### Differences across stimuli and conditions
+
 Average over subjects to get an average response rate by stimulus.
+
 ```{r avg rate per stimulus}
 p_avg_rate_stim <- response_rate %>%
   mutate(scram_cond = as.factor(scram_cond),
          stim_num = as.factor(stim_num)) %>%
   group_by(scram_cond, stim_num) %>%
   summarize(mean_rate = mean(response_rate), sd_rate = sd(response_rate)) %>%
-  print() %>%
+  #print() %>%
   
   ggplot(aes(x = scram_cond, y = mean_rate, fill = stim_num)) +
   geom_bar(stat = 'identity', position = "dodge") +
