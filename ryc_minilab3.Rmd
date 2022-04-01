@@ -146,12 +146,44 @@ The difference between 2B and 1B is not significant. However, the difference bet
 
 <!-- Finally, let's group the conditions into more scrambled (2B, 1B) and less scrambled (8B, intact). Although there appears to be a difference between 8B and intact, this grouping makes sense from a music theory perspective - the more scrambled conditions don't have intact phrases and the less scrambled conditions do. !--> 
 
-```{r compare group by scramble level (more/less)}
-
-
-```
-
-
 ## Inter-subject agreement
 
-## Predicting responses with the ground truth
+First, let's visualize timing of responses for one stimulus to get a sense for how matched the subject responses might be using a raster-like representation. For this, we'll look at the second run of the first stimulus of the Intact condition.
+
+<!--#```{r show data_long} 
+#data_long
+#```!-->
+
+```{r visualize I_1 all responses}
+p_I_1_r2 <- data_long %>%
+  filter(scram_cond == 'intact', stim_num == 1, run == 2) %>%
+  
+  ggplot(aes(x = time, y = exp_subject_id, fill = response)) +
+  geom_tile(color = "black") +
+  labs(x = "seconds", y = "subject")
+  
+p_I_1_r2
+```
+
+There appears to be a general agreement around 30 seconds and 70 seconds for this stimulus. To get a rough idea of where this agreement exists for each of the stimuli we'll simply plot the sum over subject responses in run 2.
+
+```{r visualize sum of responses, fig.height=5, fig.width=10}
+p_sum_resp <- data_long %>%
+  group_by(scram_cond, stim_num, run, time) %>%
+  summarize(sum_resp = sum(response)) %>%
+  filter(run == 2) %>%
+  
+  ggplot(aes(x = time, y = scram_cond, fill = sum_resp)) +
+  facet_grid(cols = vars(stim_num)) +
+  geom_tile(color = "black") +
+  #theme(
+  #  aspect.ratio = 0.8, 
+  #  axis.text.x = element_blank()) +
+  labs(x = "seconds", y = "condition")
+
+p_sum_resp
+```
+
+As expected, there are moments in the intact and 8B stimuli with stronger subject agreement. In 2B and 1B, the responses seem much more washed out, indicating much less agreement.
+
+<!--## Predicting responses with the ground truth --!>
