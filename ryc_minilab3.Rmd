@@ -10,6 +10,7 @@ output:
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = FALSE, message = FALSE)
 library(tidyverse)
+library(modelr)
 library(magrittr)
 library(patchwork)
 ```
@@ -303,23 +304,15 @@ As expected, there are moments in the intact and 8B stimuli with stronger subjec
 
 Intersubject correlation is the correlation between one subject's time series of responses and the average of all other subjects' time series of responses.
 
-```{r bootstrap functions}
-#compute_bootstrap_isc <- function(){
-  # compute true ISC
-  
-  # perform n permutations (shuffle=TRUE)
-  
-#}
-
-compute_isc <- function(data, stim, shuffle=FALSE){
+```{r ISC functions}
+compute_isc <- function(data, stim){
   # stim contains c(condition, stimulus number, run)
   
   n_subj <- length(levels(data$exp_subject_id))
   isc_vals <- vector(length=n_subj)
   
   # loop through all subjects
-  for (sub in seq(n_subj)){ # this works because subjects are labelled 1 to 43
-  #for (sub in levels(data$exp_subject_id)){
+  for (sub in seq(n_subj)){ # this works because subjects are labeled 1 to 43
     this_sub_data <- data %>%
       filter(exp_subject_id == sub,
              scram_cond == stim[1],
@@ -335,14 +328,36 @@ compute_isc <- function(data, stim, shuffle=FALSE){
       summarize(avg_resp = mean(response))
     
     isc_vals[sub] <- cor(this_sub_data$response,avg_others_data$avg_resp)
+    
   }
+  
   return(mean(isc_vals))
+  
+}
+
+compute_null_dist <- function(data, stim, n_samples) {
+  # loop through all subjects
+  for (sub in seq(n_subj)){
+    # create array (n_subj x n_samples) or transpose then take mean over subjects
+  }
+  
+}
+  
+
+compare_true_to_null <- function(data, stim, n_samples){
+  # compute true ISC
+  true_avg_isc <- compute_isc(data, stim)
+  print(true_avg_isc)
+  
+  # perform n permutations
+  compute_null_dist(data, stim, n_samples)
+  
+  
 }
 
 # test
 test_stim <- c('intact',1,2) 
-avg_isc <- compute_isc(data_long,test_stim)
-print(avg_isc)
+compare_true_to_null(data_long,test_stim,2)
 
 ```
 
