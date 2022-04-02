@@ -1,8 +1,10 @@
 ---
-title: "Minilab 3: annotations"
+title: 'Minilab 3: annotations'
 author: "Riesa Cassano"
-date: "3/29/2022"
-output: html_document
+date: "4/1/2022"
+output:
+  html_document: default
+  pdf_document: default
 ---
 
 ```{r setup, include=FALSE}
@@ -87,7 +89,7 @@ p_avg_rate_subj_cond <- response_rate %>%
 p_avg_rate_subj_cond
 ```
 
-It seems like there's more variability in response rate in the 1B and 2B conditions compared to the 8B and intact. One way to explore consistency across subjects is by correlating response rates by subjects across conditions. Subjects with higher rates in 1B are expected to have higher rates in intact relative to other subjects. In a linear model, a non-zero intercept would suggest an effect of condition on response rate. Significant correlation between two conditions could point to some intrinsic, subject-specific rate.
+It seems like there's more variability in response rate in the 1B and 2B conditions compared to the 8B and intact. One way to explore consistency across subjects is by correlating response rates by subjects across conditions. Subjects with higher rates in 1B are expected to have higher rates in intact relative to other subjects. In a linear model, a non-zero intercept would suggest an effect of condition on response rate.
 
 ```{r compare rates across conditions, fig.width=10}
 response_rate_wide <- response_rate %>%
@@ -173,6 +175,7 @@ summary(lm(`1B` ~ intact, response_rate_wide_no_out))
 
 It seems like that "outlier" was artificially raising the R^2 values. This is an interesting result, but doesn't motivate exclusion of this subject necessarily.
 
+\newpage
 #### Differences across stimuli and conditions
 
 Average over subjects to get an average response rate by stimulus.
@@ -204,7 +207,7 @@ p_avg_rate_cond <- response_rate %>%
   mutate(scram_cond = as.factor(scram_cond)) %>%
   group_by(scram_cond) %>%
   summarize(mean_rate = mean(response_rate), sd_rate = sd(response_rate)) %>%
-  print() %>%
+  #print() %>%
   
   ggplot(aes(x = scram_cond, y = mean_rate)) +
   geom_bar(stat = 'identity') +
@@ -223,8 +226,8 @@ Based on this plot, there seems to be no difference in mean response rates betwe
 avg_rate_cond_subject <- response_rate %>%
   mutate(scram_cond = as.factor(scram_cond)) %>%
   group_by(exp_subject_id, scram_cond) %>%
-  summarize(mean_rate = mean(response_rate)) %>%
-  print()
+  summarize(mean_rate = mean(response_rate)) #%>%
+  #print()
   
 p_avg_rate_cond_subject <- avg_rate_cond_subject %>%
   ggplot(aes(x = scram_cond, y = mean_rate)) +
@@ -261,13 +264,10 @@ The difference between 2B and 1B is not significant. However, the difference bet
 
 <!-- Finally, let's group the conditions into more scrambled (2B, 1B) and less scrambled (8B, intact). Although there appears to be a difference between 8B and intact, this grouping makes sense from a music theory perspective - the more scrambled conditions don't have intact phrases and the less scrambled conditions do. !--> 
 
+\newpage
 ## Inter-subject agreement
 
 First, let's visualize timing of responses for one stimulus to get a sense for how matched the subject responses might be using a raster-like representation. For this, we'll look at the second run of the first stimulus of the Intact condition.
-
-<!--#```{r show data_long} 
-#data_long
-#```!-->
 
 ```{r visualize I_1 all responses}
 p_I_1_r2 <- data_long %>%
@@ -291,9 +291,6 @@ p_sum_resp <- data_long %>%
   ggplot(aes(x = time, y = scram_cond, fill = sum_resp)) +
   facet_grid(cols = vars(stim_num)) +
   geom_tile(color = "black") +
-  #theme(
-  #  aspect.ratio = 0.8, 
-  #  axis.text.x = element_blank()) +
   labs(x = "seconds", y = "condition")
 
 p_sum_resp
@@ -301,4 +298,40 @@ p_sum_resp
 
 As expected, there are moments in the intact and 8B stimuli with stronger subject agreement. In 2B and 1B, the responses seem much more washed out, indicating much less agreement.
 
-<!--## Predicting responses with the ground truth --!>
+#### Bootstrap intersubject correlation
+Intersubject correlation is the correlation between one subject's time series of responses and the average of all other subjects' time series of responses.
+```{r isc}
+# specify particular subject and stimulus for testing
+this_sub <- '377777'
+specific_stim <- c('intact',1,2)
+
+this_sub_data <- data_long %>%
+  filter(exp_subject_id == this_sub,
+         scram_cond == specific_stim[1],
+         stim_num == specific_stim[2],
+         run == specific_stim[3]) %>%
+  print()
+
+avg_others_data <- data_long %>%
+  filter(exp_subject_id != this_sub,
+         scram_cond == specific_stim[1],
+         stim_num == specific_stim[2],
+         run == specific_stim[3]) %>%
+  group_by(time) %>%
+  summarize(avg_resp = mean(response)) %>%
+  print()
+
+print(cor(this_sub_data$response,avg_others_data$avg_resp))
+
+```
+
+
+## Predicting responses with the ground truth
+
+```{r load ground truths}
+gt_periodic <- as_tibble(read_csv('data/ground_truth_phrase_boundaries_periodic.csv'))
+print(gt_periodic)
+
+gt_tracked <- as_tibble(read_csv('data/ground_truth_phrase_boundaries_tracked.csv'))
+print(gt_tracked)
+```
