@@ -319,6 +319,9 @@ compute_isc <- function(data, stim){
              stim_num == stim[2],
              run == stim[3])
     
+    # for testing bootstrap, permute
+    #perms <- permute(this_sub_data, 1, response)
+    
     avg_others_data <- data %>%
       filter(exp_subject_id != sub,
              scram_cond == stim[1],
@@ -328,6 +331,8 @@ compute_isc <- function(data, stim){
       summarize(avg_resp = mean(response))
     
     isc_vals[sub] <- cor(this_sub_data$response,avg_others_data$avg_resp)
+    #isc_vals[sub] <- cor(this_sub_data$response[perms$perm[[1]]$idx],
+    #                     avg_others_data$avg_resp)
     
   }
   
@@ -336,10 +341,41 @@ compute_isc <- function(data, stim){
 }
 
 compute_null_dist <- function(data, stim, n_samples) {
+  # create array (n_subj x n_samples)
+  n_subj <- length(levels(data$exp_subject_id))
+  null_dist <- matrix(0, nrow=n_subj, ncol=n_samples)
+  
   # loop through all subjects
   for (sub in seq(n_subj)){
-    # create array (n_subj x n_samples) or transpose then take mean over subjects
+    # compute average over other subjects
+    avg_others_data <- data %>%
+      filter(exp_subject_id != sub,
+             scram_cond == stim[1],
+             stim_num == stim[2],
+             run == stim[3]) %>%
+      group_by(time) %>%
+      summarize(avg_resp = mean(response))
+    
+    # get this subject's data
+    this_sub_data <- data %>%
+      filter(exp_subject_id == sub,
+             scram_cond == stim[1],
+             stim_num == stim[2],
+             run == stim[3])
+    
+    # create permutations
+    perms <- permute(this_sub_data, n_samples, response)
+    
+    # loop through number of samples
+    for (n in seq(n_samples)){
+      null_dist[sub,n] <- cor(this_sub_data$response[perms$perm[[n]]$idx],
+                              avg_others_data$avg_resp)
+      
+    }
+  
   }
+
+  return(colMeans(null_dist))
   
 }
   
@@ -350,14 +386,17 @@ compare_true_to_null <- function(data, stim, n_samples){
   print(true_avg_isc)
   
   # perform n permutations
-  compute_null_dist(data, stim, n_samples)
+  null_dist <- compute_null_dist(data, stim, n_samples)
+  print(null_dist)
   
+  # compute z-score of true value in comparison to null distribution
+  print(pnorm(true_avg_isc, mean=mean(null_dist), sd=sd(null_dist)))
   
 }
 
 # test
 test_stim <- c('intact',1,2) 
-compare_true_to_null(data_long,test_stim,2)
+compare_true_to_null(data_long,test_stim,100)
 
 ```
 
