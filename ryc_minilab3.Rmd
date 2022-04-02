@@ -300,31 +300,52 @@ p_sum_resp
 As expected, there are moments in the intact and 8B stimuli with stronger subject agreement. In 2B and 1B, the responses seem much more washed out, indicating much less agreement.
 
 #### Bootstrap intersubject correlation
+
 Intersubject correlation is the correlation between one subject's time series of responses and the average of all other subjects' time series of responses.
-```{r isc}
-# specify particular subject and stimulus for testing
-this_sub <- '1'
-specific_stim <- c('intact',1,2)
 
-this_sub_data <- data_long %>%
-  filter(exp_subject_id == this_sub,
-         scram_cond == specific_stim[1],
-         stim_num == specific_stim[2],
-         run == specific_stim[3]) %>%
-  print()
+```{r bootstrap functions}
+#compute_bootstrap_isc <- function(){
+  # compute true ISC
+  
+  # perform n permutations (shuffle=TRUE)
+  
+#}
 
-avg_others_data <- data_long %>%
-  filter(exp_subject_id != this_sub,
-         scram_cond == specific_stim[1],
-         stim_num == specific_stim[2],
-         run == specific_stim[3]) %>%
-  group_by(time) %>%
-  summarize(avg_resp = mean(response)) %>%
-  print()
+compute_isc <- function(data, stim, shuffle=FALSE){
+  # stim contains c(condition, stimulus number, run)
+  
+  n_subj <- length(levels(data$exp_subject_id))
+  isc_vals <- vector(length=n_subj)
+  
+  # loop through all subjects
+  for (sub in seq(n_subj)){ # this works because subjects are labelled 1 to 43
+  #for (sub in levels(data$exp_subject_id)){
+    this_sub_data <- data %>%
+      filter(exp_subject_id == sub,
+             scram_cond == stim[1],
+             stim_num == stim[2],
+             run == stim[3])
+    
+    avg_others_data <- data %>%
+      filter(exp_subject_id != sub,
+             scram_cond == stim[1],
+             stim_num == stim[2],
+             run == stim[3]) %>%
+      group_by(time) %>%
+      summarize(avg_resp = mean(response))
+    
+    isc_vals[sub] <- cor(this_sub_data$response,avg_others_data$avg_resp)
+  }
+  return(mean(isc_vals))
+}
 
-print(cor(this_sub_data$response,avg_others_data$avg_resp))
+# test
+test_stim <- c('intact',1,2) 
+avg_isc <- compute_isc(data_long,test_stim)
+print(avg_isc)
 
 ```
+
 
 
 ## Predicting responses with the ground truth
