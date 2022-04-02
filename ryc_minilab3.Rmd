@@ -20,6 +20,7 @@ data_long <- as_tibble(read_csv('data/responses_binarized_long.csv'))
 
 # convert exp_subject_id to a factor
 data_long <- mutate(data_long, exp_subject_id = as.factor(exp_subject_id))
+levels(data_long$exp_subject_id) <- seq(1,43)
 ```
 
 <!--For easier handling, nest each run into one cell.!-->
@@ -302,7 +303,7 @@ As expected, there are moments in the intact and 8B stimuli with stronger subjec
 Intersubject correlation is the correlation between one subject's time series of responses and the average of all other subjects' time series of responses.
 ```{r isc}
 # specify particular subject and stimulus for testing
-this_sub <- '377777'
+this_sub <- '1'
 specific_stim <- c('intact',1,2)
 
 this_sub_data <- data_long %>%
