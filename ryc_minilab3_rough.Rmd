@@ -541,3 +541,11 @@ print(data_less_scram$p[[2]])
 ```
 
 The subject did not respond in Intact 3. Thus Cohen's kappa is meaningless.
+
+For each of the stimuli, calculate Cohen's kappa at various lags: (-3,5). *Struggling in `Untitled.Rmd`, want to do this in python*
+
+```{r Intact 1 kappa with lags}
+lags <- seq(-3,5)
+print(lags)
+
+```
