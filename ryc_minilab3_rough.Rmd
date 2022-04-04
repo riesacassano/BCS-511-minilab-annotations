@@ -520,4 +520,24 @@ print(data_less_scram$p[[3]])
 
 ```
 
-In the intact 1 stimulus, this subject marked the last ground truth boundary to a second. In the 8B 1 stimulus, the subject seemed to mark three of the four boundaries, but was off by a few seconds. This gives a very poor Cohen's kappa result. 
+In the intact 1 stimulus, this subject marked the last ground truth boundary to a second. This gives a significant p-value for Cohen's kappa. In the 8B 1 stimulus, the subject seemed to mark three of the four boundaries, but was off by a few seconds. This gives a very poor Cohen's kappa result. 
+
+```{r visualize intact 3, fig.height=1.5, fig.width=10}
+resp_i3_tbl <- data_less_scram$response_tbl[[2]]
+gt_i3_tbl <- gt_less_scram$response_tbl[[6]]
+
+resp_i3 <- ggplot(resp_i3_tbl, 
+                  aes(x=time, y=1, fill=response)) +
+  geom_tile() +
+  ylab('intact 3 responses')
+gt_i3 <- ggplot(gt_i3_tbl, 
+                aes(x=time, y=1, fill=response)) +
+  geom_tile() +
+  ylab('intact 3 ground truth')
+
+resp_i3
+gt_i3
+print(data_less_scram$p[[2]])
+```
+
+The subject did not respond in Intact 3. Thus Cohen's kappa is meaningless.
