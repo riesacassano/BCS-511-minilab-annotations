@@ -422,26 +422,68 @@ gt_less_scram <- filter(gt_periodic, scram_cond != '2B', scram_cond != '1B')
 # nest
 gt_less_scram <- gt_less_scram %>%
   group_by(scram_cond, stim_num) %>%
-  nest(response_tbl = c(time,response)) #%>%
-  #print()
+  nest(response_tbl = c(time,response)) %>%
+  print()
 ```
 
 #### Less scrambled conditions: intact and 8B
 
 ```{r kappa helper function}
-kappa_helper <- function(data, ground_truth){
+kappa_helper <- function(data_tbl, gt_ind){
+  data <- data_tbl$response
+  ground_truth <- gt_less_scram$response_tbl[[gt_ind]]$response
+  
   m <- matrix(c(data,ground_truth), ncol=2)
-  print(kappa2(m))
+  kappa_results <- kappa2(m)
+  result_list <- list('kappa.value' = kappa_results$value,
+                      'p.value' = kappa_results$p.value)
+  return(result_list)
 }
 
-test_data <- data$response_tbl[[1]]$response
-test_gt <- gt_less_scram$response_tbl[[2]]$response
-kappa_helper(test_data, test_gt)
+test_data <- data$response_tbl[[1]]
+test_gt <- 2
+result <- kappa_helper(test_data, test_gt)
+print(result$kappa.value)
+print(result$p.value)
 ```
 
-```{r grab intact and 8B data}
-data %>%
+```{r perform IRR on less scrambled conditions}
+data_less_scram <- data %>%
   # filter out more scrambled conditions and run 1 data
   filter(scram_cond != '2B', scram_cond != '1B', run == 2) %>% 
+  # test with one subject
+  filter(exp_subject_id == '18') %>%
+  
+  mutate(
+    gt_tbl_ind = case_when(
+      scram_cond == '8B' & stim_num == 1 ~ 1,
+      scram_cond == '8B' & stim_num == 2 ~ 2,
+      scram_cond == '8B' & stim_num == 3 ~ 3,
+      scram_cond == 'intact' & stim_num == 1 ~ 4,
+      scram_cond == 'intact' & stim_num == 2 ~ 5,
+      scram_cond == 'intact' & stim_num == 3 ~ 6
+    )
+  ) %>%
+  
+  mutate(gt_tbl_ind = as.integer(gt_tbl_ind)) %>%
+  
+  #mutate(kappa_value = kappa_helper(response_tbl,gt_tbl_ind)$kappa.value,
+  #       p_value = kappa_helper(response_tbl,gt_tbl_ind)$p.value) %>%
+
   print()
+
+data_less_scram$kappa <- c()
+data_less_scram$p <- c()
+
+for (row in seq(nrow(data_less_scram))){
+  these_results <- kappa_helper(data_less_scram$response_tbl[[row]],
+                                data_less_scram$gt_tbl_ind[[row]])
+  data_less_scram$kappa[[row]] <- these_results$kappa.value
+  data_less_scram$p[[row]] <- these_results$p.value
+}
+
+print(data_less_scram)
+print(data_less_scram$kappa[[1]])
+
+
 ```
