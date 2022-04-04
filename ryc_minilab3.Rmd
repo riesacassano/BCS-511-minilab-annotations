@@ -1,7 +1,7 @@
 ---
 title: 'Minilab 3: annotations'
 author: "Riesa Cassano"
-date: "4/1/2022"
+date: "4/10/2022"
 output:
   html_document: default
   pdf_document: default
@@ -13,6 +13,7 @@ library(tidyverse)
 library(modelr)
 library(magrittr)
 library(patchwork)
+library(irr)
 ```
 
 <!--First, load the data in long format.!-->
@@ -304,7 +305,7 @@ As expected, there are moments in the intact and 8B stimuli with stronger subjec
 
 Intersubject correlation is the correlation between one subject's time series of responses and the average of all other subjects' time series of responses.
 
-```{r ISC functions}
+```{r ISC functions, include=FALSE}
 compute_isc <- function(data, stim){
   # stim contains c(condition, stimulus number, run)
   
@@ -396,18 +397,51 @@ compare_true_to_null <- function(data, stim, n_samples){
 
 # test
 test_stim <- c('intact',1,2) 
-compare_true_to_null(data_long,test_stim,100)
+#compare_true_to_null(data_long,test_stim,100)
 
 ```
 
+Since the response vectors are binary, intersubject correlation might not be the best measure to use.
+
+#### Intersubject reliability: Cohen's kappa
 
 
 ## Predicting responses with the ground truth
 
 ```{r load ground truths}
 gt_periodic <- as_tibble(read_csv('data/ground_truth_phrase_boundaries_periodic.csv'))
-print(gt_periodic)
+#print(gt_periodic)
 
 gt_tracked <- as_tibble(read_csv('data/ground_truth_phrase_boundaries_tracked.csv'))
-print(gt_tracked)
+#print(gt_tracked)
+
+# get ground truths for intact and 8B stimuli (it's the same)
+gt_less_scram <- filter(gt_periodic, scram_cond != '2B', scram_cond != '1B')
+#print(gt_less_scram)
+
+# nest
+gt_less_scram <- gt_less_scram %>%
+  group_by(scram_cond, stim_num) %>%
+  nest(response_tbl = c(time,response)) #%>%
+  #print()
+```
+
+#### Less scrambled conditions: intact and 8B
+
+```{r kappa helper function}
+kappa_helper <- function(data, ground_truth){
+  m <- matrix(c(data,ground_truth), ncol=2)
+  print(kappa2(m))
+}
+
+test_data <- data$response_tbl[[1]]$response
+test_gt <- gt_less_scram$response_tbl[[2]]$response
+kappa_helper(test_data, test_gt)
+```
+
+```{r grab intact and 8B data}
+data %>%
+  # filter out more scrambled conditions and run 1 data
+  filter(scram_cond != '2B', scram_cond != '1B', run == 2) %>% 
+  print()
 ```
