@@ -447,7 +447,7 @@ print(result$kappa.value)
 print(result$p.value)
 ```
 
-```{r perform IRR on less scrambled conditions}
+```{r perform IRR on less scrambled conditions, one subject test, fig.height=1.5, fig.width=10}
 data_less_scram <- data %>%
   # filter out more scrambled conditions and run 1 data
   filter(scram_cond != '2B', scram_cond != '1B', run == 2) %>% 
@@ -472,8 +472,8 @@ data_less_scram <- data %>%
 
   print()
 
-data_less_scram$kappa <- c()
-data_less_scram$p <- c()
+data_less_scram$kappa <- numeric(nrow(data_less_scram))
+data_less_scram$p <- numeric(nrow(data_less_scram))
 
 for (row in seq(nrow(data_less_scram))){
   these_results <- kappa_helper(data_less_scram$response_tbl[[row]],
@@ -483,7 +483,41 @@ for (row in seq(nrow(data_less_scram))){
 }
 
 print(data_less_scram)
-print(data_less_scram$kappa[[1]])
 
+# visualize intact 1 and 8B 1
+resp_i1_tbl <- data_less_scram$response_tbl[[4]]
+gt_i1_tbl <- gt_less_scram$response_tbl[[4]]
+
+resp_i1 <- ggplot(resp_i1_tbl, 
+                  aes(x=time, y=1, fill=response)) +
+  geom_tile() +
+  ylab('intact 1 responses')
+gt_i1 <- ggplot(gt_i1_tbl, 
+                aes(x=time, y=1, fill=response)) +
+  geom_tile() +
+  ylab('intact 1 ground truth')
+
+resp_i1
+gt_i1
+print(data_less_scram$p[[4]])
+
+
+resp_8B1_tbl <- data_less_scram$response_tbl[[3]]
+gt_8B1_tbl <- gt_less_scram$response_tbl[[1]]
+
+resp_8B1 <- ggplot(resp_8B1_tbl, 
+                   aes(x=time, y=1, fill=response)) +
+  geom_tile() +
+  ylab('8B 1 responses')
+gt_8B1 <- ggplot(gt_8B1_tbl, 
+                 aes(x=time, y=1, fill=response)) +
+  geom_tile() +
+  ylab('8B 1 ground truth')
+
+resp_8B1
+gt_8B1
+print(data_less_scram$p[[3]])
 
 ```
+
+In the intact 1 stimulus, this subject marked the last ground truth boundary to a second. In the 8B 1 stimulus, the subject seemed to mark three of the four boundaries, but was off by a few seconds. This gives a very poor Cohen's kappa result. 
