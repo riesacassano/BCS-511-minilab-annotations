@@ -544,8 +544,72 @@ The subject did not respond in Intact 3. Thus Cohen's kappa is meaningless.
 
 For each of the stimuli, calculate Cohen's kappa at various lags: (-3,5). *Struggling in `Untitled.Rmd`, want to do this in python*
 
-```{r Intact 1 kappa with lags}
-lags <- seq(-3,5)
-print(lags)
 
+### For the writeup
+
+Visualize responses, raster style (run 1 and run 2)
+- sums (run 1 and run 2?)
+
+```{r visualize all responses, fig.height=15, fig.width=15}
+p_r1 <- data_long %>%
+  filter(run == 1) %>%
+  
+  ggplot(aes(x = time, y = exp_subject_id, fill = response)) +
+  facet_grid(rows = vars(scram_cond), cols = vars(stim_num)) +
+  geom_tile(color = "black") +
+  labs(x = "seconds", y = "subject", title = "Run 1") +
+  theme(text = element_text(size = 20),
+        axis.text.y = element_text(size = 7))
+  
+p_r1
+#ggsave("plots/raster_resp_run1.png", plot = p_r1)
+
+p_r2 <- data_long %>%
+  filter(run == 2) %>%
+  
+  ggplot(aes(x = time, y = exp_subject_id, fill = response)) +
+  facet_grid(rows = vars(scram_cond), cols = vars(stim_num)) +
+  geom_tile(color = "black") +
+  labs(x = "seconds", y = "subject", title = "Run 2") +
+  theme(text = element_text(size = 20),
+        axis.text.y = element_text(size = 7))
+  
+p_r2
+#ggsave("plots/raster_resp_run2.png", plot = p_r2)
 ```
+
+Visualize sums over subjects
+```{r visualize sums, fig.height=5, fig.width=10}
+p_sum_resp1 <- data_long %>%
+  group_by(scram_cond, stim_num, run, time) %>%
+  summarize(sum_resp = sum(response)) %>%
+  filter(run == 1) %>%
+  
+  ggplot(aes(x = time, y = scram_cond, fill = sum_resp)) +
+  facet_grid(cols = vars(stim_num)) +
+  geom_tile(color = "black") +
+  labs(x = "seconds", y = "condition", title = "Run 1")
+
+p_sum_resp1
+#ggsave("plots/sum_resp_run1.png", plot = p_sum_resp1)
+
+p_sum_resp2 <- data_long %>%
+  group_by(scram_cond, stim_num, run, time) %>%
+  summarize(sum_resp = sum(response)) %>%
+  filter(run == 2) %>%
+  
+  ggplot(aes(x = time, y = scram_cond, fill = sum_resp)) +
+  facet_grid(cols = vars(stim_num)) +
+  geom_tile(color = "black") +
+  labs(x = "seconds", y = "condition", title = "Run 2")
+
+p_sum_resp2
+#ggsave("plots/sum_resp_run2.png", plot = p_sum_resp2)
+```
+
+
+Comparing lags across conditions
+- generate lag data in python and save
+
+then `lm(kappa ~ cond)` for each lag, then model comparison with ANOVA
+
