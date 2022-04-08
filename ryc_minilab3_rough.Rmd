@@ -562,7 +562,7 @@ p_r1 <- data_long %>%
         axis.text.y = element_text(size = 7))
   
 p_r1
-#ggsave("plots/raster_resp_run1.png", plot = p_r1)
+#ggsave("plots/raster_resp_run1.pdf", plot = p_r1)
 
 p_r2 <- data_long %>%
   filter(run == 2) %>%
@@ -575,7 +575,7 @@ p_r2 <- data_long %>%
         axis.text.y = element_text(size = 7))
   
 p_r2
-#ggsave("plots/raster_resp_run2.png", plot = p_r2)
+#ggsave("plots/raster_resp_run2.pdf", plot = p_r2)
 ```
 
 Visualize sums over subjects
@@ -591,7 +591,7 @@ p_sum_resp1 <- data_long %>%
   labs(x = "seconds", y = "condition", title = "Run 1")
 
 p_sum_resp1
-#ggsave("plots/sum_resp_run1.png", plot = p_sum_resp1)
+#ggsave("plots/sum_resp_run1.pdf", plot = p_sum_resp1)
 
 p_sum_resp2 <- data_long %>%
   group_by(scram_cond, stim_num, run, time) %>%
@@ -604,12 +604,72 @@ p_sum_resp2 <- data_long %>%
   labs(x = "seconds", y = "condition", title = "Run 2")
 
 p_sum_resp2
-#ggsave("plots/sum_resp_run2.png", plot = p_sum_resp2)
+#ggsave("plots/sum_resp_run2.pdf", plot = p_sum_resp2)
 ```
 
 
-Comparing lags across conditions
-- generate lag data in python and save
+#### Comparing lags across conditions
 
 then `lm(kappa ~ cond)` for each lag, then model comparison with ANOVA
+```{r load lag kappa data}
+d_kappa <- as_tibble(read_csv('data/lag_kappa_values.csv'))
 
+# code stuff as factors
+#d_kappa$scram_cond
+d_kappa$lag <- as.factor(d_kappa$lag)
+print(d_kappa)
+```
+
+Plot kappa values from all four conditions across all subjects, runs, stimulus numbers, and lags.
+
+```{r plot periodic}
+p_periodic <- d_kappa %>%
+  filter(gt_type != 'tracked') %>% # leave 'actual' (I, 8B) and 'periodic' (2B, 1B)
+  
+  ggplot(aes(x = scram_cond, y = kappa, color = lag)) +
+  geom_point(position = 'jitter', alpha = 0.3) +
+  geom_smooth(aes(group = lag), method = lm) +
+  labs(x = 'condition')
+  
+p_periodic
+#ggsave("plots/lag_kappa_all_periodic.png", plot = p_periodic)
+  
+```
+
+```{r plot tracked}
+p_tracked <- d_kappa %>%
+  filter(gt_type != 'periodic') %>% # leave 'actual' (I, 8B) and 'tracked' (2B, 1B)
+  
+  ggplot(aes(x = scram_cond, y = kappa, color = lag)) +
+  geom_point(position = 'jitter', alpha = 0.3) +
+  geom_smooth(aes(group = lag), method = lm) +
+  labs(x = 'condition')
+  
+p_tracked
+#ggsave("plots/lag_kappa_all_tracked.png", plot = p_tracked)
+  
+```
+
+```{r linear models for periodic}
+d_kappa_periodic <- filter(d_kappa, gt_type != 'tracked')
+
+lm_cond <- lm(kappa ~ scram_cond, data=d_kappa_periodic)
+summary(lm_cond)
+lm_wo_int <- lm(kappa ~ scram_cond + lag, data=d_kappa_periodic)
+summary(lm_wo_int)
+lm_w_int <- lm(kappa ~ scram_cond + lag + scram_cond*lag, data=d_kappa_periodic)
+summary(lm_w_int)
+anova(lm_wo_int, lm_w_int, test = 'Chisq')
+```
+
+```{r linear models for tracked}
+d_kappa_tracked <- filter(d_kappa, gt_type != 'periodic')
+
+lm_cond <- lm(kappa ~ scram_cond, data=d_kappa_tracked)
+summary(lm_cond)
+lm_wo_int <- lm(kappa ~ scram_cond + lag, data=d_kappa_tracked)
+summary(lm_wo_int)
+lm_w_int <- lm(kappa ~ scram_cond + lag + scram_cond*lag, data=d_kappa_tracked)
+summary(lm_w_int)
+anova(lm_wo_int, lm_w_int, test = 'Chisq')
+```
