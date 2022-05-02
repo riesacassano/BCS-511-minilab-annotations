@@ -579,8 +579,10 @@ p_r2
 ```
 
 Visualize sums over subjects
+
 ```{r visualize sums, fig.height=5, fig.width=10}
 p_sum_resp1 <- data_long %>%
+  mutate(scram_cond = factor(scram_cond, levels = c('intact', '8B', '2B', '1B'))) %>%
   group_by(scram_cond, stim_num, run, time) %>%
   summarize(sum_resp = sum(response)) %>%
   filter(run == 1) %>%
@@ -591,9 +593,10 @@ p_sum_resp1 <- data_long %>%
   labs(x = "seconds", y = "condition", title = "Run 1")
 
 p_sum_resp1
-#ggsave("plots/sum_resp_run1.pdf", plot = p_sum_resp1)
+ggsave("plots/sum_resp_run1.pdf", plot = p_sum_resp1)
 
 p_sum_resp2 <- data_long %>%
+  mutate(scram_cond = factor(scram_cond, levels = c('intact', '8B', '2B', '1B'))) %>%
   group_by(scram_cond, stim_num, run, time) %>%
   summarize(sum_resp = sum(response)) %>%
   filter(run == 2) %>%
@@ -604,7 +607,7 @@ p_sum_resp2 <- data_long %>%
   labs(x = "seconds", y = "condition", title = "Run 2")
 
 p_sum_resp2
-#ggsave("plots/sum_resp_run2.pdf", plot = p_sum_resp2)
+ggsave("plots/sum_resp_run2.pdf", plot = p_sum_resp2)
 ```
 
 
