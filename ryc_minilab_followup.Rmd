@@ -1,0 +1,124 @@
+---
+title: "Minilab follow-up"
+author: "Riesa Cassano"
+date: "5/3/2022"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE, message = FALSE)
+library(tidyverse)
+library(magrittr)
+library(patchwork)
+```
+
+```{r load lag kappa values}
+data <- as_tibble(read_csv('data/lag_kappa_values_wsubj.csv'))
+#print(data)
+```
+
+Plot bar plots for intact and 8B side by side. Average over all stimuli and runs in a condition to get one kappa value for each subject at each lag.
+
+```{r bar plots for intact and 8B}
+bar_I <- data %>%
+  filter(scram_cond == 'intact') %>%
+  group_by(subject, lag) %>%
+  summarize(mean_kappa = mean(kappa)) %>%
+  
+  ggplot(aes(x = lag, y = mean_kappa)) +
+  geom_bar(stat = 'summary') +
+  geom_errorbar(stat = 'summary', width = 0.5) +
+  scale_x_continuous(breaks = seq(-2,3)) +
+  scale_y_continuous(name = 'mean kappa') +
+  geom_point(position = position_jitter(width = 0.2)) +
+  ggtitle("Intact")
+  
+bar_I
+#ggsave("plots/lag_kappa_bar_I.png", plot = bar_I)
+
+bar_8B <- data %>%
+  filter(scram_cond == '8B') %>%
+  group_by(subject, lag) %>%
+  summarize(mean_kappa = mean(kappa)) %>%
+  
+  ggplot(aes(x = lag, y = mean_kappa)) +
+  geom_bar(stat = 'summary') +
+  geom_errorbar(stat = 'summary', width = 0.5) +
+  scale_x_continuous(breaks = seq(-2,3)) +
+  scale_y_continuous(name = 'mean kappa') +
+  geom_point(position = position_jitter(width = 0.2)) +
+  ggtitle("8B")
+  
+bar_8B
+#ggsave("plots/lag_kappa_bar_8B.png", plot = bar_8B)
+```
+
+```{r bar plots for 2B and 1B}
+bar_2B_per <- data %>%
+  filter(scram_cond == '2B') %>%
+  filter(gt_type == 'periodic') %>%
+  group_by(subject, lag) %>%
+  summarize(mean_kappa = mean(kappa)) %>%
+  
+  ggplot(aes(x = lag, y = mean_kappa)) +
+  geom_bar(stat = 'summary') +
+  geom_errorbar(stat = 'summary', width = 0.5) +
+  scale_x_continuous(breaks = seq(-2,3)) +
+  scale_y_continuous(name = 'mean kappa') +
+  geom_point(position = position_jitter(width = 0.2)) +
+  ggtitle("2B periodic")
+  
+#bar_2B_per
+ggsave("plots/lag_kappa_bar_2B_per.png", plot = bar_2B_per)
+
+bar_2B_tracked <- data %>%
+  filter(scram_cond == '2B') %>%
+  filter(gt_type == 'tracked') %>%
+  group_by(subject, lag) %>%
+  summarize(mean_kappa = mean(kappa)) %>%
+  
+  ggplot(aes(x = lag, y = mean_kappa)) +
+  geom_bar(stat = 'summary') +
+  geom_errorbar(stat = 'summary', width = 0.5) +
+  scale_x_continuous(breaks = seq(-2,3)) +
+  scale_y_continuous(name = 'mean kappa') +
+  geom_point(position = position_jitter(width = 0.2)) +
+  ggtitle("2B tracked")
+  
+#bar_2B_tracked
+ggsave("plots/lag_kappa_bar_2B_tracked.png", plot = bar_2B_tracked)
+
+bar_1B_per <- data %>%
+  filter(scram_cond == '1B') %>%
+  filter(gt_type == 'periodic') %>%
+  group_by(subject, lag) %>%
+  summarize(mean_kappa = mean(kappa)) %>%
+  
+  ggplot(aes(x = lag, y = mean_kappa)) +
+  geom_bar(stat = 'summary') +
+  geom_errorbar(stat = 'summary', width = 0.5) +
+  scale_x_continuous(breaks = seq(-2,3)) +
+  scale_y_continuous(name = 'mean kappa') +
+  geom_point(position = position_jitter(width = 0.2)) +
+  ggtitle("1B periodic")
+  
+#bar_1B_per
+ggsave("plots/lag_kappa_bar_1B_per.png", plot = bar_1B_per)
+
+bar_1B_tracked <- data %>%
+  filter(scram_cond == '1B') %>%
+  filter(gt_type == 'tracked') %>%
+  group_by(subject, lag) %>%
+  summarize(mean_kappa = mean(kappa)) %>%
+  
+  ggplot(aes(x = lag, y = mean_kappa)) +
+  geom_bar(stat = 'summary') +
+  geom_errorbar(stat = 'summary', width = 0.5) +
+  scale_x_continuous(breaks = seq(-2,3)) +
+  scale_y_continuous(name = 'mean kappa') +
+  geom_point(position = position_jitter(width = 0.2)) +
+  ggtitle("1B tracked")
+  
+#bar_1B_tracked
+ggsave("plots/lag_kappa_bar_1B_tracked.png", plot = bar_1B_tracked)
+```
