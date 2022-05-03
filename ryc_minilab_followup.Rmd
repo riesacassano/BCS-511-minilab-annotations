@@ -68,8 +68,8 @@ bar_2B_per <- data %>%
   geom_point(position = position_jitter(width = 0.2)) +
   ggtitle("2B periodic")
   
-#bar_2B_per
-ggsave("plots/lag_kappa_bar_2B_per.png", plot = bar_2B_per)
+bar_2B_per
+#ggsave("plots/lag_kappa_bar_2B_per.png", plot = bar_2B_per)
 
 bar_2B_tracked <- data %>%
   filter(scram_cond == '2B') %>%
@@ -85,8 +85,8 @@ bar_2B_tracked <- data %>%
   geom_point(position = position_jitter(width = 0.2)) +
   ggtitle("2B tracked")
   
-#bar_2B_tracked
-ggsave("plots/lag_kappa_bar_2B_tracked.png", plot = bar_2B_tracked)
+bar_2B_tracked
+#ggsave("plots/lag_kappa_bar_2B_tracked.png", plot = bar_2B_tracked)
 
 bar_1B_per <- data %>%
   filter(scram_cond == '1B') %>%
@@ -102,8 +102,8 @@ bar_1B_per <- data %>%
   geom_point(position = position_jitter(width = 0.2)) +
   ggtitle("1B periodic")
   
-#bar_1B_per
-ggsave("plots/lag_kappa_bar_1B_per.png", plot = bar_1B_per)
+bar_1B_per
+#ggsave("plots/lag_kappa_bar_1B_per.png", plot = bar_1B_per)
 
 bar_1B_tracked <- data %>%
   filter(scram_cond == '1B') %>%
@@ -119,6 +119,36 @@ bar_1B_tracked <- data %>%
   geom_point(position = position_jitter(width = 0.2)) +
   ggtitle("1B tracked")
   
-#bar_1B_tracked
-ggsave("plots/lag_kappa_bar_1B_tracked.png", plot = bar_1B_tracked)
+bar_1B_tracked
+#ggsave("plots/lag_kappa_bar_1B_tracked.png", plot = bar_1B_tracked)
+```
+
+```{r compare lags by condition}
+all_bar <- data %>%
+  filter(gt_type != 'periodic') %>%
+  group_by(scram_cond, subject, lag) %>%
+  summarize(mean_kappa = mean(kappa)) %>%
+
+  ggplot(aes(x = lag, y = mean_kappa, fill = scram_cond)) +
+  geom_bar(position = 'dodge', stat = 'summary') +
+  geom_errorbar(stat = 'summary', position = 'dodge') +
+  scale_x_continuous(breaks = seq(-2,3)) +
+  scale_y_continuous(name = 'mean kappa')
+
+all_bar
+
+all_bar2 <- data %>%
+  filter(gt_type != 'periodic') %>%
+  group_by(scram_cond, subject, lag) %>%
+  summarize(mean_kappa = mean(kappa)) %>%
+  mutate(lag = factor(lag)) %>%
+
+  ggplot(aes(x = scram_cond, y = mean_kappa, fill = lag)) +
+  geom_bar(position = 'dodge', stat = 'summary') +
+  geom_errorbar(stat = 'summary', position = 'dodge') +
+  scale_x_discrete(name = 'condition') +
+  scale_y_continuous(name = 'mean kappa')
+
+all_bar2
+
 ```
