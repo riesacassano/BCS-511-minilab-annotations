@@ -136,6 +136,7 @@ all_bar <- data %>%
   scale_y_continuous(name = 'mean kappa')
 
 all_bar
+ggsave("plots/lag_kappa_all_bar_by_lag.png", plot = all_bar)
 
 all_bar2 <- data %>%
   filter(gt_type != 'periodic') %>%
@@ -150,5 +151,45 @@ all_bar2 <- data %>%
   scale_y_continuous(name = 'mean kappa')
 
 all_bar2
+# save?
+```
 
+Change the factor coding so we compare to Intact. Leave coding for lag - use -2 as a baseline.
+
+```{r lm}
+all_by_lag <- data %>%
+  filter(gt_type != 'periodic') %>%
+  group_by(subject, lag) %>%
+  summarize(mean_kappa = mean(kappa)) %>%
+  mutate(lag = factor(lag)) %>%
+  
+  ggplot(aes(x = lag, y = mean_kappa)) +
+  geom_bar(stat = 'summary') +
+  geom_errorbar(stat = 'summary', width = 0.5) +
+  #scale_x_continuous(breaks = seq(-2,3)) +
+  scale_y_continuous(name = 'mean kappa') +
+  geom_point(position = position_jitter(width = 0.2)) #+
+  #ggtitle("1B tracked")
+
+all_by_lag
+
+data_tracked <- data %>%
+  filter(gt_type != 'periodic') %>%
+  group_by(scram_cond, subject, lag) %>%
+  summarize(mean_kappa = mean(kappa)) %>%
+  mutate(scram_cond = factor(scram_cond, levels = c('intact', '8B', '2B', '1B'))) %>%
+  mutate(lag = factor(lag)) # %>%
+  #mutate(lag = factor(lag, levels = c(0,1,2,3,-1,-2))) %>%
+  #print()
+
+lm_cond <- lm(mean_kappa ~ scram_cond, data=data_tracked)
+summary(lm_cond)
+lm_lag <- lm(mean_kappa ~ lag, data=data_tracked)
+summary(lm_lag)
+
+lm_wo_int <- lm(mean_kappa ~ scram_cond + lag, data=data_tracked)
+summary(lm_wo_int)
+lm_w_int <- lm(mean_kappa ~ scram_cond + lag + scram_cond*lag, data=data_tracked)
+summary(lm_w_int)
+anova(lm_wo_int, lm_w_int, test = 'Chisq')
 ```
